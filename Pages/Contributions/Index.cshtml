@@ -1,0 +1,73 @@
+﻿@page "/plugins/podserver/podcasts/{podcastId}/contributions/{episodeId?}"
+@using BTCPayServer.Plugins.PodServer.Authentication
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model BTCPayServer.Plugins.PodServer.Pages.Contributions.IndexModel
+
+@if (Model.Episode == null)
+{
+    ViewData.SetActivePage(PodServerNavPages.Contributions, Model.Podcast.Title, Model.Podcast.PodcastId);
+}
+else
+{
+    ViewData.SetActivePage(PodServerNavPages.Contributions, Model.Episode.Title, Model.Episode.EpisodeId);
+}
+
+<div class="sticky-header-setup"></div>
+<div class="sticky-header mb-l">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4 @(Model.HasPeople ? "" : "mt-1")">
+        <h2 class="mb-0">@ViewData["Title"]</h2>
+        @if (Model.HasPeople)
+        {
+            <a asp-page="./Edit" asp-route-podcastId="@Model.Podcast.PodcastId" asp-route-episodeId="@Model.Episode?.EpisodeId" class="btn btn-primary mt-3 mt-sm-0" role="button" id="AddContribution" permission="@PodServerPolicies.CanManageEpisodes">Add a contribution</a>
+        }
+    </div>
+    @if (Model.Episode == null)
+    {
+        <partial name="_PodcastSettingsNav" model="Model.Podcast.PodcastId"/>
+    }
+    else
+    {
+        <partial name="_EpisodeSettingsNav" model="(Model.Podcast.PodcastId, Model.Episode.EpisodeId)"/>
+    }
+</div>
+
+<partial name="_StatusMessage" />
+
+<h3 class="mb-3">Contributions</h3>
+
+@if (Model.Contributions.Any())
+{
+    <table id="PodcastContributions" class="table table-hover">
+        <thead>
+        <tr>
+            <th>Person</th>
+            <th>Role</th>
+            <th>Split</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var contribution in Model.Contributions)
+        {
+            <tr>
+                <td>
+                    <a asp-page="./Edit" asp-route-podcastId="@contribution.PodcastId" asp-route-personId="@contribution.PersonId" asp-route-episodeId="@contribution.EpisodeId" class="contribution-edit">@contribution.Person.Name</a>
+                </td>
+                <td>@contribution.Role</td>
+                <td>@contribution.Split</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else if (Model.HasPeople)
+{
+    <p id="PodcastContributions" class="text-secondary">There are no contributions yet.</p>
+}
+else
+{
+    <p id="PodcastContributions" class="text-secondary">
+        You need to
+        <a asp-page="/People/Create" asp-route-podcastId="@Model.Podcast.PodcastId">add a person</a>
+        first, in order to create their contributions.
+    </p>
+}

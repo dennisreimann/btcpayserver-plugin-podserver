@@ -1,0 +1,91 @@
+@page "/plugins/podserver/podcasts/{podcastId}/contributions/edit/{personId?}"
+@using BTCPayServer.Abstractions.Models
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model BTCPayServer.Plugins.PodServer.Pages.Contributions.EditModel
+
+@{
+    var isCreate = Model.Contribution.PersonId == null;
+    var person = isCreate ? null : Model.Podcast.People.FirstOrDefault(p => p.PersonId == Model.Contribution.PersonId);
+    var peopleItems = Model.Podcast.People.Select(p => new SelectListItem { Value = p.PersonId, Text = p.Name });
+    var title = isCreate ? "Add a new contribution for" : "Edit contribution for";
+    if (Model.Episode == null)
+    {
+        ViewData.SetActivePage(PodServerNavPages.Contributions, $"{title} {Model.Podcast.Title}", Model.Podcast.PodcastId);
+    }
+    else
+    {
+        ViewData.SetActivePage(PodServerNavPages.Contributions, $"{title} {Model.Episode.Title}", Model.Episode.EpisodeId);
+    }
+}
+
+<form method="post" enctype="multipart/form-data">
+    <div class="sticky-header-setup"></div>
+    <div class="sticky-header mb-l">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
+            <h2 class="mb-0">
+                <a asp-page="/Podcasts/Podcast" asp-route-podcastId="@Model.Contribution.PodcastId" class="unobtrusive-link">@ViewData["Title"]</a>
+            </h2>
+            <div class="d-flex gap-3 mt-3 mt-sm-0">
+                <button type="submit" class="btn btn-primary" id="Save">@(isCreate ? "Create" : "Save")</button>
+            </div>
+        </div>
+        @if (string.IsNullOrEmpty(Model.Contribution.EpisodeId))
+        {
+            <partial name="_PodcastSettingsNav" model="Model.Podcast.PodcastId"/>
+        }
+        else
+        {
+            <partial name="_EpisodeSettingsNav" model="(Model.Podcast.PodcastId, Model.Episode.EpisodeId)"/>
+        }
+    </div>
+    
+    <partial name="_StatusMessage" />
+
+    <div class="row">
+        <div class="col-xl-8 col-xxl-constrain">
+            @if (!ViewContext.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            }
+            <div class="col col-auto">
+                <div class="form-group">
+                    <label asp-for="Contribution.PersonId" class="form-label" data-required>Person</label>
+                    @if (person == null)
+                    {
+                        <select asp-for="Contribution.PersonId" asp-items="peopleItems" autofocus class="form-select w-auto">
+                            <option></option>
+                        </select>
+                        <span asp-validation-for="Contribution.PersonId" class="text-danger"></span>
+                    }
+                    else
+                    {
+                        <input asp-for="Contribution.PersonId" type="hidden" />
+                        <p>@person.Name</p>
+                    }
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Contribution.Role" class="form-label" data-required></label>
+                <input asp-for="Contribution.Role" class="form-control" />
+                <span asp-validation-for="Contribution.Role" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Contribution.Split" class="form-label" data-required></label>
+                <input asp-for="Contribution.Split" class="form-control" min="1" step="1" style="width:8rem" />
+                <span asp-validation-for="Contribution.Split" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+</form>
+
+@if (!isCreate)
+{
+    <h3 class="mt-5 mb-4">Additional Actions</h3>
+    <div class="d-flex gap-3">
+        <a id="DeleteContribution" class="btn btn-outline-danger" asp-page="./Delete" asp-route-podcastId="@Model.Contribution.PodcastId" asp-route-personId="@Model.Contribution.PersonId" data-bs-toggle="modal" data-bs-target="#ConfirmModal" data-description="The contribution of <strong>@Model.Contribution.Person.Name</strong> will be removed." data-confirm-input="REMOVE">Remove this contribution</a>
+    </div>
+
+    <partial name="_Confirm" model="@(new ConfirmModel("Remove contribution", $"The contribution of \"{Model.Contribution.Person.Name}\" will be removed. Are you sure?", "Remove"))" />
+}
+
+

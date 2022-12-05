@@ -1,0 +1,202 @@
+﻿:root {
+    --podserver-accent: #f7931a;
+}
+
+.podserver-public a,
+.podserver-public a:hover {
+    color: var(--podserver-accent);
+}
+
+.podserver-public .btn-secondary:hover {
+    border-color: var(--podserver-accent);
+}
+
+.player {
+    display: flex;
+    border-radius: var(--btcpay-space-m);
+    overflow: hidden;
+    max-width: 800px;
+}
+.player__cover {
+    display: block;
+    width: 100%;
+}
+.player__bottom {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    color: var(--btcpay-body-text);
+    background-color: var(--btcpay-bg-tile);
+    transition-property: color, background-color;
+    transition-duration: var(--btcpay-transition-duration-fast);
+}
+.player__progress {
+    display: block;
+    background-color: var(--btcpay-body-bg-medium);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: var(--btcpay-space-m);
+    cursor: pointer;
+    border: none;
+}
+.player ::-ms-fill {
+    background-color: var(--podserver-accent);
+}
+.player ::-moz-progress-bar {
+    background-color: var(--podserver-accent);
+}
+.player ::-webkit-progress-value {
+    background-color: var(--podserver-accent);
+}
+
+.player__time, .player__links {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--btcpay-space-m) var(--btcpay-space-l);
+    color: var(--btcpay-body-text-muted);
+    font-size: var(--btcpay-font-size-s);
+}
+.player__speed:before {
+    cursor: pointer;
+}
+.player__speed.amplitude-playback-speed-10:before {
+    content: '1.0x';
+}
+.player__speed.amplitude-playback-speed-15:before {
+    content: '1.5x';
+}
+.player__speed.amplitude-playback-speed-20:before {
+    content: '2.0x';
+}
+.player__controls {
+    display: flex;
+    align-items: center;
+    padding: var(--btcpay-space-m) var(--btcpay-space-l);
+}
+.player__button {
+    width: 70px;
+    height: 70px;
+    margin-right: var(--btcpay-space-l);
+    cursor: pointer;
+}
+.player__button svg {
+    width: 100%;
+    height: 100%;
+}
+.player__button__icon--play, .player__button__icon--pause {
+    display: none;
+    color: var(--btcpay-body-text-muted);
+}
+.player__button.amplitude-paused .player__button__icon--play, .player__button.amplitude-playing .player__button__icon--pause {
+    display: block;
+}
+.player__info {
+    flex: 1;
+    text-align: left;
+}
+.player__info a,
+.player__info a:hover {
+    color: var(--podserver-accent);
+}
+.player__album {
+    color: var(--btcpay-body-text-muted);
+}
+.player__links {
+    margin-top: auto;
+    justify-content: flex-end;
+}
+.player__download {
+    display: inline-flex;
+    align-items: center;
+    color: var(--btcpay-body-text-muted);
+    font-size: var(--btcpay-font-size-s);
+}
+.player__download:hover {
+    color: var(--podserver-accent);
+}
+.player__download svg {
+    width: .75rem;
+    height: .75rem;
+    margin-right: var(--btcpay-space-s);
+}
+
+@media not all and (hover: none) {
+    .player__button__icon--play:hover, .player__button__icon--pause:hover {
+        color: var(--podserver-accent);
+    }
+    .player__info a:hover .player__album {
+        color: inherit;
+    }
+}
+@media screen and (max-width: 599px) {
+    .player {
+        flex-direction: column;
+        min-width: 300px;
+        max-width: 400px;
+    }
+
+    .player__coverlink {
+        flex: 0 0 100%;
+    }
+}
+@media screen and (min-width: 600px) {
+    .player__coverlink {
+        flex: 0 0 40%;
+    }
+}
+
+.episodes {
+    display: grid;
+    grid-gap: var(--btcpay-space-l);
+}
+
+.episode-item {
+    display: flex;
+    border-radius: var(--btcpay-space-s);
+    background-color: var(--btcpay-bg-tile);
+    transition-property: background-color;
+    transition-duration: var(--btcpay-transition-duration-fast);
+}
+
+.episode-item a,
+.episode-item a:hover {
+    color: var(--podserver-accent);
+}
+
+.episode-coverlink,
+.episode-coverlink img {
+    display: block;
+    border-radius: var(--btcpay-space-s);
+}
+
+.episode-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    color: var(--btcpay-body-text-muted);
+}
+
+.episode-content {
+    flex: 1;
+    padding: var(--btcpay-space-m) var(--btcpay-space-l);
+}
+
+@media screen and (max-width: 599px) {
+    .episodes {
+        grid-template-columns: 1fr;
+    }
+    .episode-coverlink img {
+        width: 20vw;
+    }
+}
+@media screen and (min-width: 600px) {
+    .episodes {
+        grid-template-columns: 1fr 1fr;
+    }
+    .episode-coverlink img {
+        width: 10vw;
+        max-width: 10rem;
+    }
+}

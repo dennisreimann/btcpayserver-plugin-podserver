@@ -1,0 +1,23 @@
+@page "/plugins/podserver/podcasts/{podcastId}/seasons/{seasonId}/delete"
+@model BTCPayServer.Plugins.PodServer.Pages.Seasons.DeleteModel
+
+@{
+    ViewData.SetActivePage(PodServerNavPages.Seasons, Model.Season.Name, Model.Season.PodcastId);
+}
+
+<div class="sticky-header-setup"></div>
+<div class="sticky-header mb-l">
+    <div class="d-flex flex-wrap align-items-center justify-content-between mt-1 mb-2 mb-lg-4">
+        <h2 class="mb-0">@ViewData["Title"]</h2>
+    </div>
+    <partial name="_PodcastSettingsNav" model="Model.Season.PodcastId" />
+</div>
+
+<partial name="_StatusMessage" />
+
+<p>Are you sure you want to remove this season from this podcast?</p>
+
+<form method="post">
+    <input type="submit" value="Delete" class="btn btn-danger" id="Delete" />
+</form>
+

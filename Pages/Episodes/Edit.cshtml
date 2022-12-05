@@ -1,0 +1,124 @@
+@page "/plugins/podserver/podcasts/{podcastId}/episodes/{episodeId}/edit"
+@using BTCPayServer.Abstractions.Contracts
+@using System.Globalization
+@using BTCPayServer.Abstractions.Models
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model BTCPayServer.Plugins.PodServer.Pages.Episodes.EditModel
+@inject IFileService FileService
+
+@{
+    ViewData.SetActivePage(PodServerNavPages.EditEpisode, Model.Episode.Title, Model.Episode.EpisodeId);
+}
+
+@section PodServerHead {
+    <link href="~/vendor/summernote/summernote-bs5.css" rel="stylesheet" asp-append-version="true" />
+    <style>
+        .flatpickr-wrapper { flex-grow: 1; }
+    </style>
+}
+
+@section PodServerFoot {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/vendor/summernote/summernote-bs5.js" asp-append-version="true"></script>
+}
+
+<form method="post" enctype="multipart/form-data">
+    <div class="sticky-header-setup"></div>
+    <div class="sticky-header mb-l">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
+            <h2 class="mb-0">@ViewData["Title"]</h2>
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-primary" id="Save">Save</button>
+            </div>
+        </div>
+        <partial name="_EpisodeSettingsNav" model="(Model.Episode.PodcastId, Model.Episode.EpisodeId)"/>
+    </div>
+    
+    <partial name="_StatusMessage" />
+
+    <div class="row">
+        <div class="col-xl-10 col-xxl-constrain">
+            @if (!ViewContext.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="text-danger"></div>
+            }
+            <div class="form-group">
+                <label asp-for="Episode.Title" class="form-label" data-required></label>
+                <input asp-for="Episode.Title" class="form-control" required />
+                <span asp-validation-for="Episode.Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Episode.Description" class="form-label" data-required></label>
+                <textarea asp-for="Episode.Description" class="form-control richtext" rows="15" cols="40" required></textarea>
+                <span asp-validation-for="Episode.Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Episode.PublishedAt" class="form-label"></label>
+                <div class="input-group flex-nowrap" style="max-width:18rem">
+                    <input type="datetime-local" asp-for="Episode.PublishedAt"
+                           value="@(Model.Episode.PublishedAt?.ToString("u", CultureInfo.InvariantCulture))"
+                           class="form-control flatdtpicker"
+                           placeholder="No publish date has been set" />
+                    <button class="btn btn-secondary input-group-clear" type="button" title="Clear">
+                        <span class="fa fa-times"></span>
+                    </button>
+                </div>
+                <span asp-validation-for="Episode.PublishedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="EnclosureFile" class="form-label">Media File</label>
+                <input id="EnclosureFile" name="EnclosureFile" type="file" class="form-control">
+            </div>
+            @foreach(var enclosure in Model.Episode.Enclosures)
+            {
+                <div class="mt-3">
+                    <audio controls src="@(await FileService.GetFileUrl(Request.GetAbsoluteRootUri(), enclosure.FileId))" class="w-100"></audio>
+                </div>
+            }
+            
+            <h3 class="mt-5 mb-3">Additional information</h3>
+            <div class="form-group">
+                <label asp-for="Episode.Slug" class="form-label" data-required></label>
+                <input asp-for="Episode.Slug" class="form-control">
+                <span asp-validation-for="Episode.Slug" class="text-danger"></span>
+            </div>
+            <div class="row g-3">
+                <div class="col col-auto">
+                    <div class="form-group">
+                        <label asp-for="Episode.Number" class="form-label"></label>
+                        <input asp-for="Episode.Number" class="form-control" type="number" min="1" step="1" style="width:8rem">
+                        <span asp-validation-for="Episode.Number" class="text-danger"></span>
+                    </div>
+                </div>
+                @if (Model.SeasonItems.Any())
+                {
+                    <div class="col col-auto">
+                        <div class="form-group">
+                            <label asp-for="Episode.SeasonId" class="form-label">Season</label>
+                            <select asp-for="Episode.SeasonId" asp-items="Model.SeasonItems" class="form-select w-auto">
+                                <option></option>
+                            </select>
+                            <span asp-validation-for="Episode.SeasonId" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="form-group">
+                <div class="form-label">Cover Image</div>
+                @if (!string.IsNullOrEmpty(Model.Episode.ImageFileId))
+                {
+                    <img src="@(await FileService.GetFileUrl(Request.GetAbsoluteRootUri(), Model.Episode.ImageFileId))" alt="@Model.Episode.Title" class="d-block my-3 w-150px"/>
+                }
+                <label for="ImageFile" class="btn btn-secondary w-150px">@(string.IsNullOrEmpty(Model.Episode.ImageFileId) ? "Upload" : "Update")</label>
+                <input id="ImageFile" name="ImageFile" type="file" class="form-control d-none">
+            </div>
+        </div>
+    </div>
+</form>
+
+<h3 class="mt-5 mb-4">Additional Actions</h3>
+<div class="d-flex gap-3">
+    <a id="DeleteEpisode" class="btn btn-outline-danger" asp-page="./Delete" asp-route-podcastId="@Model.Episode.PodcastId" asp-route-episodeId="@Model.Episode.EpisodeId" data-bs-toggle="modal" data-bs-target="#ConfirmModal" data-description="The episode <strong>@Model.Episode.Title</strong> will be deleted." data-confirm-input="DELETE">Delete this episode</a>
+</div>
+
+<partial name="_Confirm" model="@(new ConfirmModel("Delete episode", $"The episode \"{Model.Episode.Title}\" will be deleted. Are you sure?", "Delete"))" />

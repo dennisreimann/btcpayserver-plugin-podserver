@@ -1,0 +1,23 @@
+@page "/plugins/podserver/podcasts/{podcastId}/people/{personId}/delete"
+@model BTCPayServer.Plugins.PodServer.Pages.People.DeleteModel
+
+@{
+    ViewData.SetActivePage(PodServerNavPages.People, Model.Person.Name, Model.Person.PodcastId);
+}
+
+<div class="sticky-header-setup"></div>
+<div class="sticky-header mb-l">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <h2 class="mb-0">@ViewData["Title"]</h2>
+    </div>
+    <partial name="_PodcastSettingsNav" model="Model.Person.PodcastId" />
+</div>
+
+<partial name="_StatusMessage" />
+
+<p>Are you sure you want to remove this person from this podcast?</p>
+
+<form method="post">
+    <input type="submit" value="Delete" class="btn btn-danger" id="Delete" />
+</form>
+

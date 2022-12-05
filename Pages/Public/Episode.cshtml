@@ -1,0 +1,101 @@
+@page "/plugins/podserver/podcast/{podcastSlug}/{episodeSlug}"
+@using BTCPayServer.Plugins.PodServer.Data.Models
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using BTCPayServer.Abstractions.Contracts
+@using System.Globalization
+@model PublicEpisodeModel
+@inject IFileService FileService
+
+@{
+    Layout = "_LayoutSimple";
+    ViewData.SetActivePage(PodServerNavPages.Public, $"{Model.Episode.Title} - {Model.Podcast.Title}", Model.Episode.EpisodeId);
+    
+    var rootUri = Request.GetAbsoluteRootUri();
+    var enclosure = Model.Episode.MainEnclosure;
+    var player = new Player(Model.Episode, FileService);
+    var imageUrl = await player.GetImageUrl(rootUri);
+    var enclosureUrl = await player.GetEnclosureUrl(rootUri);
+}
+
+@section PageHeadContent
+{
+    <partial name="_LayoutPodServerHead" />
+    <meta property="og:type" content="article">
+    @if (imageUrl != null)
+    {
+        <meta property="og:image" content="@imageUrl.Replace("https://", "http://")">
+        <meta property="og:image:secure_url" content="@imageUrl">
+    }
+    @if (enclosure != null)
+    {
+        <meta property="og:audio:type" content="@enclosure.Type">
+    }
+    @if (!string.IsNullOrEmpty(enclosureUrl))
+    {
+        <meta property="og:audio:url" content="@enclosureUrl.Replace("https://", "http://")">
+        <meta property="og:audio:secure_url" content="@enclosureUrl">
+    }
+    <meta property="article:section" content="@Model.Podcast.Category">
+    <meta property="article:published_time" content="@Model.Episode.PublishedAt">
+}
+
+@section PageFootContent {
+    <partial name="_LayoutPodServerFoot" />
+}
+
+<main class="podserver-public">
+    <div class="sticky-header-setup"></div>
+    <div class="sticky-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <h1 class="mb-0">@Model.Episode.Title</h1>
+        <div class="d-flex gap-3">
+            <a asp-page="/Public/Podcast" asp-route-podcastSlug="@Model.Podcast.Slug" class="btn btn-secondary">@Model.Podcast.Title</a>
+            <a asp-controller="Feed" asp-action="Feed" asp-route-podcastSlug="@Model.Podcast.Slug" class="btn btn-secondary" role="button" id="Feed">Subscribe</a>
+        </div>
+    </div>
+    
+    @if (enclosure != null)
+    {
+        <partial name="PodServerPlayer" model="@player"/>
+    }
+    
+    @Html.Raw(Model.Episode.Description)
+    
+    <dl class="row">
+        <dt class="col-sm-3 col-xl-2">
+            @Html.DisplayNameFor(model => model.Episode.PublishedAt)
+        </dt>
+        <dd class="col-sm-9 col-xl-10">
+            <time datetime="@Model.Episode.PublishedAt?.ToString("o", CultureInfo.InvariantCulture)">
+                @Model.Episode.PublishedAt?.ToTimeAgo()
+            </time>
+        </dd>
+        <dt class="col-sm-3 col-xl-2">
+            @Html.DisplayNameFor(model => model.Episode.LastUpdatedAt)
+        </dt>
+        <dd class="col-sm-9 col-xl-10">
+            <time datetime="@Model.Episode.LastUpdatedAt.ToString("o", CultureInfo.InvariantCulture)">
+                @Model.Episode.LastUpdatedAt.ToTimeAgo()
+            </time>
+        </dd>
+        <dt class="col-sm-3 col-xl-2">
+            @Html.DisplayNameFor(model => model.Episode.Number)
+        </dt>
+        <dd class="col-sm-9 col-xl-10">
+            @(Model.Episode.Number != null ? Model.Episode.Number : "None")
+        </dd>
+        @if (Model.Episode.Season != null)
+        {
+            <dt class="col-sm-3 col-xl-2">
+                @Html.DisplayNameFor(model => model.Episode.Season)
+            </dt>
+            <dd class="col-sm-9 col-xl-10">
+                @Model.Episode.Season.Number
+                @if (!string.IsNullOrEmpty(Model.Episode.Season.Name))
+                {
+                    <span>—</span>
+                    @Model.Episode.Season.Name
+                }
+            </dd>
+        }
+    </dl>
+</main>

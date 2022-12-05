@@ -1,0 +1,72 @@
+@using BTCPayServer.Abstractions.Services
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model BTCPayServer.Plugins.PodServer.Data.Models.Player
+@inject Safe Safe
+
+@{
+    var rootUri = Context.Request.GetAbsoluteRootUri();
+    var imageUrl = await Model.GetImageUrl(rootUri);
+    var enclosureUrl = await Model.GetEnclosureUrl(rootUri);
+}
+
+<svg width="0" height="0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <symbol id="pause" viewBox="0 0 75 75"><g fill="none" fill-rule="evenodd" transform="translate(1 1)"><circle cx="36.5" cy="36.5" r="36.5" stroke="currentColor"/><path d="m30.52 23h-4.32c-1.2150264 0-2.2.9849736-2.2 2.2v23.6c0 1.21.98 2.2 2.2 2.2h4.32c1.2111194-.0055051 2.19-.9888681 2.19-2.2v-23.6c0-1.2111319-.9788806-2.1944949-2.19-2.2zm16.38 0h-4.32c-1.2111194.0055051-2.19.9888681-2.19 2.2v23.6c0 1.21.98 2.2 2.19 2.2h4.33c1.2111194-.0055051 2.19-.9888681 2.19-2.2v-23.6c0-1.21-.98-2.2-2.2-2.2z" fill="currentColor"/></g></symbol>
+    <symbol id="play" viewBox="0 0 75 75"><g fill="none" fill-rule="evenodd" transform="translate(1 1)"><circle cx="36.5" cy="36.5" r="36.5" stroke="currentColor"/><path d="M48.2502142,35.8004595 L26.8384747,23.4304595 C25.2746358,22.4704595 24,23.1704595 24,24.9904595 L24,49.0004595 C24,50.8104595 25.2746358,51.5204595 26.8384747,50.5604595 L48.2502142,38.2004595 C48.2502142,38.2004595 49,37.7004595 49,37.0004595 C49,36.3004595 48.2502142,35.8004595 48.2502142,35.8004595 Z" fill="currentColor"/></g></symbol>
+    <symbol id="download" viewBox="0 0 490 490"><path fill="currentColor" d="M360.352 232.334l-36.008-28.531-56.375 71.165V0h-45.938v274.968l-56.375-71.165-36.008 28.531L245 377.923zM58.02 444.063h373.96v45.938H58.02z"/></symbol>
+</svg>
+<div class="player player--single mb-5">
+    @if (imageUrl != null)
+    {
+        <a class="player__coverlink" asp-page="/Public/Episode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@Model.Episode.Slug">
+            <img class="player__cover" data-amplitude-song-info="cover_art_url" data-amplitude-main-song-info="true" src="@imageUrl" alt="@Model.Episode.Title">
+        </a>
+    }
+    <div class="player__bottom">
+        <progress class="player__progress amplitude-song-played-progress" data-amplitude-main-song-played-progress="true" value="0"></progress>
+        <div class="player__time">
+            <span class="player__current-time">
+                <span class="player__current-minutes amplitude-current-minutes" data-amplitude-main-current-minutes="true"></span>:<span class="player__current-seconds amplitude-current-seconds" data-amplitude-main-current-seconds="true"></span>
+            </span>
+            <span class="player__speed amplitude-playback-speed amplitude-playback-speed-10"></span>
+            <span class="player__duration">
+                <span class="player__duration-hours amplitude-duration-hours" data-amplitude-main-duration-hours="true"></span>:<span class="player__duration-minutes amplitude-duration-minutes" data-amplitude-main-duration-minutes="true"></span>:<span class="player__duration-seconds amplitude-duration-seconds" data-amplitude-main-duration-seconds="true"></span>
+            </span>
+        </div>
+        <div class="player__controls">
+            <div class="player__button amplitude-play-pause amplitude-paused" data-amplitude-main-play-pause="true" id="play-pause">
+                <svg class="player__button__icon--pause" role="img" title="pause">
+                    <use xlink:href="#pause"></use>
+                </svg>
+                <svg class="player__button__icon--play" role="img" title="play">
+                    <use xlink:href="#play"></use>
+                </svg>
+            </div>
+            <div class="player__info">
+                <a asp-page="/Public/Episode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@Model.Episode.Slug">
+                    <div class="player__album" data-amplitude-song-info="album" data-amplitude-main-song-info="true"></div>
+                    <h3 class="player__name" data-amplitude-song-info="name" data-amplitude-main-song-info="true"></h3>
+                </a>
+            </div>
+        </div>
+        <div class="player__links">
+            <a class="player__download" href="@enclosureUrl">
+                <svg role="img" title="download">
+                    <use xlink:href="#download"></use>
+                </svg>
+                Download
+            </a>
+        </div>
+    </div>
+</div>
+<script>
+    window.PodServer.player = {
+      songs: [
+        {
+          "name": @Safe.Json(Model.Episode.Title),
+          "artist": @Safe.Json(Model.Podcast.Title),
+          "url": @Safe.Json(enclosureUrl),
+          "cover_art_url": @Safe.Json(imageUrl)
+        }
+      ]
+    };
+</script>

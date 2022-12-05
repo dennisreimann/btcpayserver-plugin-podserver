@@ -1,0 +1,37 @@
+@page "/plugins/podserver/podcasts/{podcastId}/people/create"
+@model BTCPayServer.Plugins.PodServer.Pages.People.CreateModel
+
+@{
+    ViewData.SetActivePage(PodServerNavPages.People, "Add a new person", Model.Podcast.PodcastId);
+}
+
+<form method="post">
+    <div class="sticky-header-setup"></div>
+    <div class="sticky-header mb-l">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
+            <h2 class="mb-0">
+                <a asp-page="/Podcasts/Podcast" asp-route-podcastId="@Model.Person.PodcastId" class="unobtrusive-link">@ViewData["Title"]</a>
+            </h2>
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-primary" id="Save">Create</button>   
+            </div>
+        </div>
+        <partial name="_PodcastSettingsNav" model="Model.Person.PodcastId" />
+    </div>
+    
+    <partial name="_StatusMessage" />
+
+    <div class="row">
+        <div class="col-xl-8 col-xxl-constrain">
+            @if (!ViewContext.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            }
+            <div class="form-group">
+                <label asp-for="Person.Name" class="form-label" data-required></label>
+                <input asp-for="Person.Name" class="form-control" required autofocus />
+                <span asp-validation-for="Person.Name" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+</form>

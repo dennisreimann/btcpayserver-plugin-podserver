@@ -1,0 +1,59 @@
+﻿@page "/plugins/podserver/podcasts/{podcastId}/people"
+@using BTCPayServer.Abstractions.Contracts
+@using BTCPayServer.Plugins.PodServer.Authentication
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model BTCPayServer.Plugins.PodServer.Pages.People.IndexModel
+@inject IFileService FileService
+
+@{
+    ViewData.SetActivePage(PodServerNavPages.People, Model.Podcast.Title, Model.Podcast.PodcastId);
+}
+
+<div class="sticky-header-setup"></div>
+<div class="sticky-header mb-l">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3  mb-2 mb-lg-4">
+        <h2 class="mb-0">@ViewData["Title"]</h2>
+        <a asp-page="./Create" asp-route-podcastId="@Model.Podcast.PodcastId" class="btn btn-primary mt-3 mt-sm-0" role="button" id="AddPerson" permission="@PodServerPolicies.CanManagePodcast">Add a person</a>
+    </div>
+    <partial name="_PodcastSettingsNav" model="Model.Podcast.PodcastId" />
+</div>
+
+<partial name="_StatusMessage" />
+    
+<h3 class="mb-3">People</h3>
+
+@if (Model.People.Any())
+{
+    <table id="PodcastPeople" class="table table-hover">
+        <thead>
+        <tr>
+            <th class="w-100px">Image</th>
+            <th>Name</th>
+            <th>Value Recipient</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var person in Model.People)
+        {
+            <tr>
+                <td>
+                    @if (person.ImageFileId != null)
+                    {
+                        <img src="@(await FileService.GetFileUrl(Request.GetAbsoluteRootUri(), person.ImageFileId))" alt="@person.Name" style="max-width:50px;max-height:50px;"/>
+                    }
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-podcastId="@person.PodcastId" asp-route-personId="@person.PersonId" class="podcast-edit">@person.Name</a>
+                </td>
+                <td>
+                    @(person.ValueRecipient?.Type.ToString() ?? "None")
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <p id="PodcastPeople" class="text-secondary">There are no people yet.</p>
+}

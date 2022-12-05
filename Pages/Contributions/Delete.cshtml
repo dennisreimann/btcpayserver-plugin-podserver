@@ -1,0 +1,30 @@
+@page "/plugins/podserver/podcasts/{podcastId}/contributions/delete/{personId}/{episodeId?}"
+@model BTCPayServer.Plugins.PodServer.Pages.Contributions.DeleteModel
+
+@{
+    ViewData.SetActivePage(PodServerNavPages.Contributions, Model.Contribution.Person.Name, Model.Contribution.PodcastId);
+}
+
+<div class="sticky-header-setup"></div>
+<div class="sticky-header mb-l">
+    <div class="d-flex flex-wrap align-items-center justify-content-between mt-1 mb-2 mb-lg-4">
+        <h2 class="mb-0">@ViewData["Title"]</h2>
+    </div>
+    @if (string.IsNullOrEmpty(Model.Contribution.EpisodeId))
+    {
+        <partial name="_PodcastSettingsNav" model="Model.Contribution.PodcastId"/>
+    }
+    else
+    {
+        <partial name="_EpisodeSettingsNav" model="(Model.Contribution.PodcastId, Model.Contribution.EpisodeId)"/>
+    }
+</div>
+
+<partial name="_StatusMessage" />
+
+<p>Are you sure you want to remove this constribution?</p>
+
+<form method="post">
+    <input type="submit" value="Delete" class="btn btn-danger" id="Delete" />
+</form>
+

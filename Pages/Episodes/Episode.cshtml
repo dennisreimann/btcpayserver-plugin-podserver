@@ -1,0 +1,105 @@
+@page "/plugins/podserver/podcasts/{podcastId}/episodes/{episodeId}"
+@using BTCPayServer.Abstractions.Contracts
+@using BTCPayServer.Plugins.PodServer.Data.Models
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using System.Globalization
+@model BTCPayServer.Plugins.PodServer.Pages.Episodes.EpisodeModel
+@inject IFileService FileService
+
+@{
+    ViewData.SetActivePage(PodServerNavPages.Episode, Model.Episode.Title, Model.Episode.PodcastId);
+    var enclosure = Model.Episode.MainEnclosure;
+    var player = new Player(Model.Episode, FileService);
+}
+
+<div class="sticky-header-setup"></div>
+<div class="sticky-header mb-l">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
+        <h2 class="mb-0">@ViewData["Title"]</h2>
+        @if (Model.Episode.IsPublished)
+        {
+            <a class="btn btn-secondary" asp-page="/Public/Episode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@Model.Episode.Slug" id="ViewEpisode" target="_blank">Public Page</a>
+        }
+    </div>
+    <partial name="_EpisodeSettingsNav" model="(Model.Episode.PodcastId, Model.Episode.EpisodeId)"/>
+</div>
+
+<partial name="_StatusMessage" />
+
+@if (enclosure != null)
+{
+    <partial name="PodServerPlayer" model="@player"/>
+}
+else if (!string.IsNullOrEmpty(Model.Episode.ImageFileId))
+{
+    <img src="@(await FileService.GetFileUrl(Request.GetAbsoluteRootUri(), Model.Episode.ImageFileId))" alt="@Model.Episode.Title" style="max-width: 200px;max-height: 200px;" class="d-block mb-3"/>
+}
+
+@Html.Raw(Model.Episode.Description)
+    
+<h3 class="mt-5 mb-3">Contributions</h3>
+
+@if (Model.Episode.Contributions.Any())
+{
+    <ul id="EpisodeContributions">
+        @foreach (var contribution in Model.Episode.Contributions)
+        {
+            <li>
+                <a asp-page="/Contributions/Edit" asp-route-podcastId="@contribution.PodcastId" asp-route-personId="@contribution.PersonId" asp-route-episodeId="@contribution.EpisodeId" class="contribution-edit">@contribution.Person.Name</a>
+                (@contribution.Split)
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p id="EpisodeContributions" class="text-secondary">There are no contributions yet.</p>
+}
+
+<h3 class="mt-5 mb-3">Meta</h3>
+
+<dl class="row">
+    <dt class="col-sm-3 col-xl-2">
+        @Html.DisplayNameFor(model => model.Episode.PublishedAt)
+    </dt>
+    <dd class="col-sm-9 col-xl-10">
+        @if (Model.Episode.PublishedAt.HasValue)
+        {
+            <time datetime="@Model.Episode.PublishedAt?.ToString("o", CultureInfo.InvariantCulture)">
+                @Model.Episode.PublishedAt?.ToTimeAgo()
+            </time>
+        }
+        else
+        {
+            <span>No publish data set yet</span>   
+        }
+    </dd>
+    <dt class="col-sm-3 col-xl-2">
+        @Html.DisplayNameFor(model => model.Episode.LastUpdatedAt)
+    </dt>
+    <dd class="col-sm-9 col-xl-10">
+        <time datetime="@Model.Episode.LastUpdatedAt.ToString("o", CultureInfo.InvariantCulture)">
+            @Model.Episode.LastUpdatedAt.ToTimeAgo()
+        </time>
+    </dd>
+    <dt class="col-sm-3 col-xl-2">
+        @Html.DisplayNameFor(model => model.Episode.Number)
+    </dt>
+    <dd class="col-sm-9 col-xl-10">
+        @(Model.Episode.Number != null ? Model.Episode.Number : "None")
+    </dd>
+    @if (Model.Episode.Season != null)
+    {
+        <dt class="col-sm-3 col-xl-2">
+            @Html.DisplayNameFor(model => model.Episode.Season)
+        </dt>
+        <dd class="col-sm-9 col-xl-10">
+            @Model.Episode.Season.Number
+            @if (!string.IsNullOrEmpty(Model.Episode.Season.Name))
+            {
+                <span>—</span>
+                @Model.Episode.Season.Name
+            }
+        </dd>
+    }
+</dl>

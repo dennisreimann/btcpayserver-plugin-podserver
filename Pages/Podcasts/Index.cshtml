@@ -1,0 +1,65 @@
+﻿@page "/plugins/podserver"
+@using BTCPayServer.Plugins.PodServer.Authentication
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model BTCPayServer.Plugins.PodServer.Pages.Podcasts.IndexModel
+
+@{
+    ViewData.SetActivePage(PodServerNavPages.Podcasts, "PodServer");
+}
+
+<div class="sticky-header-setup"></div>
+<div class="sticky-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+    <h2 class="my-1">@ViewData["Title"]</h2>
+    @if (Model.IsReady)
+    {
+        <a asp-page="./Create" class="btn btn-primary" role="button" id="CreatePodcast">
+            Create a podcast
+        </a>
+    }
+</div>
+
+<partial name="_StatusMessage" />
+
+
+@if (!Model.IsReady)
+{
+    <div class="alert alert-danger mb-4 text-break" role="alert">
+        In order to use PodServer, a file storage must be configured. It can be set up in the
+        <a asp-controller="UIServer" asp-action="Files" class="alert-link">Server Settings > Files</a>.
+    </div>
+}
+
+<p>Self-host your podcast and start Podcasting 2.0 like a pro.</p>
+
+@if (Model.Podcasts.Any())
+{
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th class="text-end">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var podcast in Model.Podcasts)
+        {
+            <tr>
+                <td>
+                    <a asp-page="./Podcast" asp-route-podcastId="@podcast.PodcastId" class="podcast-title">
+                        @podcast.Title
+                    </a>
+                </td>
+                <td class="text-end">
+                    <a asp-page="/Public/Podcast" asp-route-podcastSlug="@podcast.Slug" class="podcast-view" target="_blank">Public Page</a>
+                    <span permission="@PodServerPolicies.CanManagePodcast"> - </span>
+                    <a asp-page="./Edit" asp-route-podcastId="@podcast.PodcastId" class="podcast-edit" permission="@PodServerPolicies.CanManagePodcast">Edit</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+<a href="https://podcastindex.org" target="_blank" rel="noreferrer noopener">
+    <img src="/Resources/img/podcastindex-namespace.svg" asp-append-version="true" style="width:12rem;margin-top:var(--btcpay-space-l)" alt="Podcasting 2.0 certified" />
+</a>

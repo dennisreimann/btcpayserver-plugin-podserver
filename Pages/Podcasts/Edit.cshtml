@@ -1,0 +1,108 @@
+@page "/plugins/podserver/podcasts/{podcastId}/edit"
+@using BTCPayServer.Abstractions.Contracts
+@using BTCPayServer.Abstractions.Models
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model BTCPayServer.Plugins.PodServer.Pages.Podcasts.EditModel
+@inject IFileService FileService
+
+@{
+    ViewData.SetActivePage(PodServerNavPages.EditPodcast, Model.Podcast.Title, Model.Podcast.PodcastId);
+}
+
+@section PodServerHead {
+    <link href="~/vendor/summernote/summernote-bs5.css" rel="stylesheet" asp-append-version="true" />
+}
+
+@section PodServerFoot {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/vendor/summernote/summernote-bs5.js" asp-append-version="true"></script>
+}
+
+<form method="post" enctype="multipart/form-data">
+    <div class="sticky-header-setup"></div>
+    <div class="sticky-header mb-l">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
+            <h2 class="mb-0">
+                <a asp-page="./Podcast" asp-route-podcastId="@Model.Podcast.PodcastId" class="unobtrusive-link">@ViewData["Title"]</a>
+            </h2>
+            <button type="submit" class="btn btn-primary" id="Save">Save</button>
+        </div>
+        <partial name="_PodcastSettingsNav" model="Model.Podcast.PodcastId"/>
+    </div>
+    
+    <partial name="_StatusMessage"/>
+    
+    <h3 class="mb-3">Settings</h3>
+    
+    <div class="row">
+        <div class="col-xl-10 col-xxl-constrain">
+            @if (!ViewContext.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            }
+            <div class="form-group">
+                <label asp-for="Podcast.Title" class="form-label" data-required></label>
+                <input asp-for="Podcast.Title" class="form-control" required/>
+                <span asp-validation-for="Podcast.Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Podcast.Medium" class="form-label" data-required></label>
+                <select asp-for="Podcast.Medium" asp-items="Helpers.MediumOptions" class="form-select" required></select>
+                <span asp-validation-for="Podcast.Medium" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Podcast.Language" class="form-label" data-required></label>
+                <select asp-for="Podcast.Language" asp-items="Helpers.LanguageOptions" class="form-select" required></select>
+                <span asp-validation-for="Podcast.Language" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Podcast.Category" class="form-label"></label>
+                <select asp-for="Podcast.Category" asp-items="Helpers.CategoryOptions" class="form-select" required></select>
+                <span asp-validation-for="Podcast.Category" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Podcast.Description" class="form-label" data-required></label>
+                <textarea asp-for="Podcast.Description" class="form-control richtext" rows="3" required></textarea>
+                <span asp-validation-for="Podcast.Description" class="text-danger"></span>
+            </div>
+
+            <h3 class="mt-5 mb-3">Additional information</h3>
+            <div class="form-group">
+                <label asp-for="Podcast.Slug" class="form-label" data-required></label>
+                <input asp-for="Podcast.Slug" class="form-control">
+                <span asp-validation-for="Podcast.Slug" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Podcast.Owner" class="form-label"></label>
+                <input asp-for="Podcast.Owner" class="form-control">
+                <span asp-validation-for="Podcast.Owner" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Podcast.Email" class="form-label"></label>
+                <input asp-for="Podcast.Email" class="form-control">
+                <span asp-validation-for="Podcast.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Podcast.Url" class="form-label"></label>
+                <input asp-for="Podcast.Url" class="form-control">
+                <span asp-validation-for="Podcast.Url" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="form-label">Cover Image</div>
+                @if (!string.IsNullOrEmpty(Model.Podcast.ImageFileId))
+                {
+                    <img src="@(await FileService.GetFileUrl(Request.GetAbsoluteRootUri(), Model.Podcast.ImageFileId))" alt="@Model.Podcast.Title" class="d-block my-3 w-150px"/>
+                }
+                <label for="ImageFile" class="btn btn-secondary w-150px">@(string.IsNullOrEmpty(Model.Podcast.ImageFileId) ? "Upload" : "Update")</label>
+                <input id="ImageFile" name="ImageFile" type="file" class="form-control d-none">
+            </div>
+        </div>
+    </div>
+</form>
+
+<h3 class="mt-5 mb-4">Additional Actions</h3>
+<div class="d-flex gap-3">
+    <a id="DeletePodcast" class="btn btn-outline-danger" asp-page="./Delete" asp-route-podcastId="@Model.Podcast.PodcastId" data-bs-toggle="modal" data-bs-target="#ConfirmModal" data-description="The podcast <strong>@Model.Podcast.Title</strong> will be deleted." data-confirm-input="DELETE">Delete this podcast</a>
+</div>
+
+<partial name="_Confirm" model="@(new ConfirmModel("Delete podcast", $"The podcast \"{Model.Podcast.Title}\" will be deleted. Are you sure?", "Delete"))" />

@@ -1,0 +1,85 @@
+@page "/plugins/podserver/podcasts/{podcastId}/editors/{handler?}"
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using BTCPayServer.Abstractions.Models
+@using BTCPayServer.Plugins.PodServer.Authentication
+@using BTCPayServer.Plugins.PodServer.Data.Models
+@using BTCPayServer.Plugins.PodServer.Extensions
+@model BTCPayServer.Plugins.PodServer.Pages.Podcasts.EditorsModel
+@{
+    ViewData.SetActivePage(PodServerNavPages.Editors, "Editors", Model.Podcast.PodcastId);
+    var roleOptions = new SelectList(typeof(EditorRole).GetEnumNames().Select(o => 
+        new SelectListItem(typeof(EditorRole).DisplayName(o), o)), 
+        nameof(SelectListItem.Value), nameof(SelectListItem.Text), Model.Editor?.Role);
+}
+
+<div class="sticky-header-setup"></div>
+<div class="sticky-header mb-l">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
+        <h2 class="mb-0">
+            <a asp-page="./Podcast" asp-route-podcastId="@Model.Podcast.PodcastId" class="unobtrusive-link">@ViewData["Title"]</a>
+        </h2>
+        <button type="submit" class="btn btn-primary" id="Save">Save</button>
+    </div>
+    <partial name="_PodcastSettingsNav" model="Model.Podcast.PodcastId"/>
+</div>
+    
+<partial name="_StatusMessage"/>
+    
+<div class="row">
+    <div class="col-xl-10 col-xxl-constrain">
+        <p>Give other registered BTCPay Server users access to this podcast.</p>
+
+        @if (!ViewContext.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="text-danger"></div>
+        }
+
+        <form method="post" asp-page-handler="add">
+            <div class="d-flex flex-wrap gap-3">
+                <div class="flex-grow-1">
+                    <input asp-for="Editor.Email" type="text" class="form-control" placeholder="user@example.com">
+                    <span asp-validation-for="Editor.Email" class="text-danger"></span>
+                </div>
+                <div>
+                    <select asp-for="Editor.Role" asp-items="@roleOptions" class="form-select"></select>
+                </div>
+                <div>
+                    <button type="submit" role="button" class="btn btn-primary" id="PodServer-AddEditor">Add Editor</button>
+                </div>
+            </div>
+        </form>
+
+        @if (Model.Editors.Any())
+        {
+            <div class="table-responsive" id="PodServer-Editors">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th class="text-end" permission="@PodServerPolicies.CanManagePodcast">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var editor in Model.Editors)
+                    {
+                        <tr>
+                            <td>@editor.Email</td>
+                            <td>@typeof(EditorRole).DisplayName(editor.Role.ToString())</td>
+                            <td class="text-end" permission="@PodServerPolicies.CanManagePodcast">
+                                <a asp-page-handler="remove" asp-route-userId="@editor.UserId" data-bs-toggle="modal" data-bs-target="#ConfirmModal" data-description="This action will prevent <strong>@editor.Email</strong> from accessing this podcast." data-confirm-input="REMOVE">Remove</a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p id="PodServer-Editors" class="mt-4 text-secondary">There are no editors yet.</p>
+        }
+    </div>
+</div>
+
+<partial name="_Confirm" model="@(new ConfirmModel("Remove editor", "This action will prevent the user from accessing this podcast. Are you sure?", "Remove"))" />

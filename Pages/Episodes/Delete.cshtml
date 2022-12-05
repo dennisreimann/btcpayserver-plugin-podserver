@@ -1,0 +1,19 @@
+@page "/plugins/podserver/podcasts/{podcastId}/episodes/{episodeId}/delete"
+@model BTCPayServer.Plugins.PodServer.Pages.Episodes.DeleteModel
+
+@{
+    ViewData.SetActivePage(PodServerNavPages.Episodes, Model.Episode.Title, Model.Episode.PodcastId);
+}
+
+<h2 class="mt-1 mb-4">
+    <a asp-page="./Episode" asp-route-podcastId="@Model.Episode.EpisodeId" class="unobtrusive-link">
+        @ViewData["Title"]
+    </a>
+</h2>
+
+<p>Are you sure you want to delete this episode?</p>
+
+<form method="post">
+    <input type="submit" value="Delete" class="btn btn-danger" id="Delete" />
+</form>
+
