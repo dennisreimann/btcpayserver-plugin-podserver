@@ -19,7 +19,7 @@ namespace BTCPayServer.Plugins.PodServer
             new IBTCPayServerPlugin.PluginDependency
             {
                 Identifier = nameof(BTCPayServer),
-                Condition = ">=1.6.11.0"
+                Condition = ">=1.7.1.0"
             }
         };
 
