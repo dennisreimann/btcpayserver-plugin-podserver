@@ -16,46 +16,49 @@ public class CreateModel : BasePageModel
     public Person Person { get; set; }
 
     public CreateModel(UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository) : base(userManager, podcastRepository) {}
+        PodcastRepository podcastRepository) : base(userManager, podcastRepository) { }
 
     public async Task<IActionResult> OnGet(string podcastId)
     {
-        Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery {
+        Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery
+        {
             UserId = UserId,
             PodcastId = podcastId
         });
-        if (Podcast == null) return NotFound();
-        
+        if (Podcast == null)
+            return NotFound();
+
         Person = new Person
         {
             PodcastId = Podcast.PodcastId
         };
-        
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(string podcastId)
     {
-        if (!ModelState.IsValid) return Page();
+        if (!ModelState.IsValid)
+            return Page();
 
         Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery { UserId = UserId, PodcastId = podcastId });
-        
+
         Person = new Person
         {
             PodcastId = Podcast.PodcastId
         };
 
         if (await TryUpdateModelAsync(
-            Person, 
+            Person,
             "person",
             p => p.Name))
         {
             await PodcastRepository.AddOrUpdatePerson(Person);
-        
+
             TempData[WellKnownTempData.SuccessMessage] = "Person successfully created.";
             return RedirectToPage("./Edit", new { podcastId = Podcast.PodcastId, personId = Person.PersonId });
         }
-        
+
         return Page();
     }
 }

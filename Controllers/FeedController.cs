@@ -18,30 +18,32 @@ public class FeedController : Controller
         _podcastRepository = podcastRepository;
         _fileService = fileService;
     }
-    
+
     // https://hamedfathi.me/a-professional-asp.net-core-rss/
     [ResponseCache(Duration = 1200)]
     [Produces("application/rss+xml")]
     [HttpGet("/plugins/podserver/podcast/{podcastSlug}/feed")]
     public async Task<IActionResult> Feed(string podcastSlug)
     {
-        var podcast = await _podcastRepository.GetPodcast(new PodcastsQuery {
+        var podcast = await _podcastRepository.GetPodcast(new PodcastsQuery
+        {
             Slug = podcastSlug,
             IncludePeople = true,
             IncludeSeasons = true,
             IncludeContributions = true
         });
-        if (podcast == null) return NotFound();
+        if (podcast == null)
+            return NotFound();
 
         var episodes = (await _podcastRepository.GetEpisodes(new EpisodesQuery
         {
-            PodcastId = podcast.PodcastId, 
+            PodcastId = podcast.PodcastId,
             OnlyPublished = true,
             IncludeSeason = true,
             IncludeEnclosures = true,
             IncludeContributions = true
         })).ToList();
-        
+
         // Setup
         using var stream = new MemoryStream();
         var xml = XmlWriter.Create(stream, new XmlWriterSettings
@@ -51,10 +53,10 @@ public class FeedController : Controller
             Indent = true,
             Async = true
         });
-        
+
         var rootUri = Request.GetAbsoluteRootUri();
         var lastUpdated = episodes.FirstOrDefault()?.PublishedAt!.Value ?? DateTimeOffset.Now;
-        
+
         await xml.WriteStartDocumentAsync();
         xml.WriteStartElement("rss");
         xml.WriteAttributeString("version", "2.0");
@@ -63,7 +65,7 @@ public class FeedController : Controller
         await xml.WriteAttributeStringAsync("xmlns", "podcast", null, "https://podcastindex.org/namespace/1.0");
         await xml.WriteAttributeStringAsync("xmlns", "atom", null, "http://www.w3.org/2005/Atom");
         xml.WriteStartElement("channel");
-        
+
         // Podcast
         await AddPodcastToXml(podcast, lastUpdated, rootUri, xml);
 
@@ -72,13 +74,13 @@ public class FeedController : Controller
         {
             await AddEpisodeToXml(podcast, episode, rootUri, xml);
         }
-        
+
         // End
         await xml.WriteEndElementAsync(); // channel
         await xml.WriteEndElementAsync(); // rss
         await xml.WriteEndDocumentAsync();
         await xml.FlushAsync();
-        
+
         return File(stream.ToArray(), "application/rss+xml;charset=utf-8", $"{podcast.Slug}.rss");
     }
 
@@ -90,21 +92,21 @@ public class FeedController : Controller
         var podcastUrl = string.IsNullOrEmpty(podcast.Url)
             ? Url.PageLink("/Public/Podcast", null, new { podcastSlug = podcast.Slug })
             : podcast.Url;
-        
+
         xml.WriteStartElement("title");
         await xml.WriteCDataAsync(podcast.Title);
         await xml.WriteEndElementAsync();
-        
+
         xml.WriteStartElement("description");
         await xml.WriteCDataAsync(podcast.Description);
         await xml.WriteEndElementAsync();
-        
+
         await xml.WriteElementStringAsync(null, "generator", null, "PodServer (BTCPay Server Plugin)");
         await xml.WriteElementStringAsync(null, "language", null, podcast.Language);
         await xml.WriteElementStringAsync(null, "lastBuildDate", null, lastUpdated.ToString("R"));
         await xml.WriteElementStringAsync("podcast", "guid", null, podcast.PodcastId);
         await xml.WriteElementStringAsync("podcast", "medium", null, podcast.Medium);
-        
+
         await xml.WriteStartElementAsync("atom", "link", null);
         xml.WriteAttributeString("rel", "self");
         xml.WriteAttributeString("type", "application/rss+xml");
@@ -142,7 +144,8 @@ public class FeedController : Controller
             xml.WriteStartElement("image");
             await xml.WriteElementStringAsync(null, "url", null, imageUrl);
             await xml.WriteElementStringAsync(null, "title", null, podcast.Title);
-            if (!string.IsNullOrEmpty(podcastUrl)) await xml.WriteElementStringAsync(null, "link", null, podcastUrl);
+            if (!string.IsNullOrEmpty(podcastUrl))
+                await xml.WriteElementStringAsync(null, "link", null, podcastUrl);
             await xml.WriteEndElementAsync();
 
             await xml.WriteStartElementAsync("itunes", "image", null);
@@ -167,11 +170,11 @@ public class FeedController : Controller
         xml.WriteStartElement("item");
 
         await xml.WriteElementStringAsync(null, "pubDate", null, episode.PublishedAt!.Value.ToString("R"));
-        
+
         xml.WriteStartElement("title");
         await xml.WriteCDataAsync(episode.Title);
         await xml.WriteEndElementAsync();
-        
+
         xml.WriteStartElement("description");
         await xml.WriteCDataAsync(episode.Description);
         await xml.WriteEndElementAsync();
@@ -223,7 +226,7 @@ public class FeedController : Controller
 
         await xml.WriteEndElementAsync();
     }
-    
+
     private async Task AddContributionsToXml(IEnumerable<Contribution> contributions, IEnumerable<Person> people, Uri rootUri, XmlWriter xml)
     {
         // Value
@@ -234,7 +237,8 @@ public class FeedController : Controller
         foreach (var contrib in contributions)
         {
             var person = contrib.Person ?? people.FirstOrDefault(p => p.PersonId == contrib.PersonId);
-            if (person.ValueRecipient?.Type == null) continue;
+            if (person.ValueRecipient?.Type == null)
+                continue;
 
             var type = person.ValueRecipient.Type.ToString();
             var address = person.ValueRecipient.Address;
@@ -248,7 +252,7 @@ public class FeedController : Controller
             xml.WriteAttributeString("split", split);
             await xml.WriteEndElementAsync();
         }
-        
+
         // PodServer - TODO: Make the split configurable
         await xml.WriteStartElementAsync("podcast", "valueRecipient", null);
         xml.WriteAttributeString("name", "PodServer");

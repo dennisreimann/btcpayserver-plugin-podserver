@@ -22,7 +22,7 @@ public class PodcastRepository
     {
         await using var dbContext = _dbContextFactory.CreateContext();
         var podcasts = await FilterPodcasts(dbContext.Podcasts.AsQueryable(), query).ToListAsync();
-        
+
         return podcasts.Select(podcast =>
         {
             var editor = podcast.Editors.FirstOrDefault(editor => query.UserId.Contains(editor.UserId));
@@ -42,8 +42,9 @@ public class PodcastRepository
     {
         await using var dbContext = _dbContextFactory.CreateContext();
         var podcast = await FilterPodcasts(dbContext.Podcasts.AsQueryable(), query).FirstOrDefaultAsync();
-        if (podcast == null) return null;
-        
+        if (podcast == null)
+            return null;
+
         if (query.UserId != null)
         {
             var editor = podcast.Editors.FirstOrDefault(editor => query.UserId.Contains(editor.UserId));
@@ -65,9 +66,9 @@ public class PodcastRepository
         if (!string.IsNullOrEmpty(query.UserId))
         {
             queryable = queryable.Include(podcast => podcast.Editors)
-                .Where(p => 
+                .Where(p =>
                     // Owner
-                    query.UserId.Contains(p.OwnerId) || 
+                    query.UserId.Contains(p.OwnerId) ||
                     // Editor
                     p.Editors.SingleOrDefault(e => e.UserId == query.UserId) != null);
         }
@@ -81,7 +82,7 @@ public class PodcastRepository
         {
             queryable = queryable.Where(p => p.Slug == query.Slug);
         }
-    
+
         if (query.IncludeEpisodes)
         {
             queryable = queryable.Include(p => p.Episodes);
@@ -115,7 +116,7 @@ public class PodcastRepository
 
         return queryable;
     }
-    
+
     public async Task<Podcast> AddOrUpdatePodcast(Podcast podcast)
     {
         await using var dbContext = _dbContextFactory.CreateContext();
@@ -140,7 +141,7 @@ public class PodcastRepository
         {
             await _fileService.RemoveFile(podcast.ImageFileId, null);
         }
-        
+
         await using var dbContext = _dbContextFactory.CreateContext();
         dbContext.Podcasts.Remove(podcast);
         await dbContext.SaveChangesAsync();
@@ -164,7 +165,7 @@ public class PodcastRepository
         {
             query.IncludePodcast = true;
         }
-        
+
         if (!string.IsNullOrEmpty(query.PodcastId))
         {
             query.IncludePodcast = true;
@@ -176,46 +177,46 @@ public class PodcastRepository
         {
             query.IncludeEnclosures = true;
         }
-        
+
         if (query.IncludePodcast)
         {
             queryable = query.IncludePeople
                 ? queryable.Include(e => e.Podcast).ThenInclude(p => p.People)
                 : queryable.Include(e => e.Podcast);
         }
-        
+
         if (!string.IsNullOrEmpty(query.EpisodeId))
         {
             queryable = queryable.Where(e => e.EpisodeId == query.EpisodeId);
         }
-        
+
         if (!string.IsNullOrEmpty(query.Slug))
         {
             queryable = queryable.Where(e => e.Slug == query.Slug);
         }
-        
+
         if (!string.IsNullOrEmpty(query.SeasonId))
         {
             query.IncludeSeason = true;
-            
+
             queryable = queryable.Where(e => e.SeasonId == query.SeasonId);
         }
-        
+
         if (!string.IsNullOrEmpty(query.ImportGuid))
         {
             queryable = queryable.Where(e => e.ImportGuid == query.ImportGuid);
         }
-        
+
         if (query.IncludeSeason)
         {
             queryable = queryable.Include(e => e.Season);
         }
-        
+
         if (query.IncludeEnclosures)
         {
             queryable = queryable.Include(e => e.Enclosures);
         }
-        
+
         if (query.IncludeContributions)
         {
             queryable = queryable.Include(e => e.Contributions);
@@ -224,15 +225,15 @@ public class PodcastRepository
         if (query.OnlyPublished)
         {
             queryable = queryable
-                    .Where(e => e.PublishedAt != null && e.PublishedAt <= DateTime.UtcNow && 
+                    .Where(e => e.PublishedAt != null && e.PublishedAt <= DateTime.UtcNow &&
                                 e.Enclosures.FirstOrDefault(enc => !enc.IsAlternate) != null);
         }
-        
+
         queryable = queryable.OrderByDescending(t => t.PublishedAt);
 
         return queryable;
     }
-    
+
     public async Task<Episode> AddOrUpdateEpisode(Episode episode)
     {
         await using var dbContext = _dbContextFactory.CreateContext();
@@ -257,7 +258,7 @@ public class PodcastRepository
         {
             await _fileService.RemoveFile(episode.ImageFileId, null);
         }
-        
+
         if (episode.Enclosures.Any())
         {
             foreach (var enclosure in episode.Enclosures)
@@ -265,7 +266,7 @@ public class PodcastRepository
                 await _fileService.RemoveFile(enclosure.FileId, null);
             }
         }
-        
+
         await using var dbContext = _dbContextFactory.CreateContext();
         dbContext.Episodes.Remove(episode);
         await dbContext.SaveChangesAsync();
@@ -289,12 +290,12 @@ public class PodcastRepository
         {
             queryable = queryable.Where(p => p.PodcastId == query.PodcastId);
         }
-        
+
         if (query.PersonId != null)
         {
             queryable = queryable.Where(p => p.PersonId == query.PersonId);
         }
-        
+
         if (!string.IsNullOrEmpty(query.Name))
         {
             queryable = queryable.Where(p => string.Equals(p.Name, query.Name));
@@ -308,7 +309,7 @@ public class PodcastRepository
 
         return queryable;
     }
-    
+
     public async Task<Person> AddOrUpdatePerson(Person person)
     {
         await using var dbContext = _dbContextFactory.CreateContext();
@@ -333,7 +334,7 @@ public class PodcastRepository
         {
             await _fileService.RemoveFile(person.ImageFileId, null);
         }
-        
+
         await using var dbContext = _dbContextFactory.CreateContext();
         dbContext.People.Remove(person);
         await dbContext.SaveChangesAsync();
@@ -357,7 +358,7 @@ public class PodcastRepository
         {
             queryable = queryable.Where(s => s.PodcastId == query.PodcastId);
         }
-        
+
         if (query.SeasonId != null)
         {
             queryable = queryable.Where(s => s.SeasonId == query.SeasonId);
@@ -370,7 +371,7 @@ public class PodcastRepository
 
         return queryable;
     }
-    
+
     public async Task<Season> AddOrUpdateSeason(Season season)
     {
         await using var dbContext = _dbContextFactory.CreateContext();
@@ -414,17 +415,17 @@ public class PodcastRepository
         {
             queryable = queryable.Where(c => c.PodcastId == query.PodcastId);
         }
-        
+
         if (query.PodcastOnly)
         {
             queryable = queryable.Where(c => c.EpisodeId == null);
         }
-        
+
         if (!string.IsNullOrEmpty(query.EpisodeId))
         {
             queryable = queryable.Where(c => c.EpisodeId == query.EpisodeId);
         }
-        
+
         if (!string.IsNullOrEmpty(query.PersonId))
         {
             queryable = queryable.Where(c => c.PersonId == query.PersonId);
@@ -437,7 +438,7 @@ public class PodcastRepository
 
         return queryable;
     }
-    
+
     public async Task<Contribution> AddOrUpdateContribution(Contribution contribution)
     {
         await using var dbContext = _dbContextFactory.CreateContext();
@@ -462,7 +463,7 @@ public class PodcastRepository
         dbContext.Contributions.Remove(contribution);
         await dbContext.SaveChangesAsync();
     }
-    
+
     public async Task<Editor> AddOrUpdateEditor(string podcastId, string userId, EditorRole role)
     {
         await using var dbContext = _dbContextFactory.CreateContext();

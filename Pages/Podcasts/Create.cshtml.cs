@@ -17,23 +17,24 @@ public class CreateModel : BasePageModel
     public Podcast Podcast { get; set; }
 
     public CreateModel(UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository) : base(userManager, podcastRepository) {}
+        PodcastRepository podcastRepository) : base(userManager, podcastRepository) { }
 
     public IActionResult OnGet()
     {
         Podcast = new Podcast();
-        
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid) return Page();
+        if (!ModelState.IsValid)
+            return Page();
 
         Podcast = new Podcast { OwnerId = UserId };
 
         if (await TryUpdateModelAsync(
-            Podcast, 
+            Podcast,
             "podcast",
             p => p.Title,
             p => p.Description,
@@ -42,17 +43,17 @@ public class CreateModel : BasePageModel
             p => p.Category))
         {
             Podcast.Slug = Podcast.Title.Slugify();
-                
+
             await PodcastRepository.AddOrUpdatePodcast(Podcast);
             await PodcastRepository.AddOrUpdateEditor(Podcast.PodcastId, UserId, EditorRole.Admin);
-        
+
             TempData[WellKnownTempData.SuccessMessage] = "Podcast successfully created.";
             return RedirectToPage("./Podcast", new { podcastId = Podcast.PodcastId });
         }
 
         return Page();
     }
-    
+
     public async Task<IActionResult> OnPostImportAsync([FromForm] IFormFile rssFile, [FromServices] FeedImporter importer)
     {
         try
@@ -64,7 +65,7 @@ public class CreateModel : BasePageModel
 
             using var reader = new StreamReader(rssFile.OpenReadStream());
             var rss = await reader.ReadToEndAsync();
-            
+
             Podcast = await importer.CreatePodcast(rss, UserId);
 
             TempData[WellKnownTempData.SuccessMessage] = "Podcast successfully created. The feed is now being imported and the progress will be shown here.";

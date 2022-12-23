@@ -26,18 +26,21 @@ public class EditModel : BasePageModel
     public async Task<IActionResult> OnGet(string podcastId, string personId)
     {
         Person = await GetPerson(podcastId, personId);
-        if (Person == null) return NotFound();
-        
+        if (Person == null)
+            return NotFound();
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(string podcastId, string personId)
     {
         Person = await GetPerson(podcastId, personId);
-        if (Person == null) return NotFound();
+        if (Person == null)
+            return NotFound();
 
-        if (!ModelState.IsValid) return Page();
-        
+        if (!ModelState.IsValid)
+            return Page();
+
         if (ImageFile != null)
         {
             // delete existing image
@@ -56,7 +59,7 @@ public class EditModel : BasePageModel
                 TempData[WellKnownTempData.ErrorMessage] = $"Could not save image: {e.Message}";
             }
         }
-        
+
         if (await TryUpdateModelAsync(Person,
                 "person",
             p => p.Name,
@@ -69,16 +72,17 @@ public class EditModel : BasePageModel
             {
                 TempData[WellKnownTempData.SuccessMessage] = "Person successfully updated.";
             }
-        
+
             return RedirectToPage("./Index", new { podcastId = Person.PodcastId });
         }
-        
+
         return Page();
     }
-    
+
     private async Task<Person> GetPerson(string podcastId, string personId)
     {
-        return await PodcastRepository.GetPerson(new PeopleQuery {
+        return await PodcastRepository.GetPerson(new PeopleQuery
+        {
             PodcastId = podcastId,
             PersonId = personId
         });

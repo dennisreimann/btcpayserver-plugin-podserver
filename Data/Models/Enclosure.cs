@@ -10,26 +10,26 @@ public class Enclosure
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [DisplayName("Enclosure ID")]
     public string EnclosureId { get; set; }
-    
+
     // Relations
     [Required]
     public string EpisodeId { get; set; }
     public Episode Episode { get; set; }
-    
+
     // Properties
     [Required]
     public string FileId { get; set; }
-    
+
     [Required]
     public string Type { get; set; }
-    
+
     [Required]
     public long Length { get; set; }
-    
+
     public bool IsAlternate { get; set; }
-    
+
     public string Title { get; set; }
-    
+
     internal static void OnModelCreating(ModelBuilder builder)
     {
         builder

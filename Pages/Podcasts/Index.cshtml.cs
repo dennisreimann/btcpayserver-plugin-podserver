@@ -1,4 +1,4 @@
-﻿using BTCPayServer.Abstractions.Constants;
+using BTCPayServer.Abstractions.Constants;
 using BTCPayServer.Abstractions.Contracts;
 using BTCPayServer.Client;
 using BTCPayServer.Data;
@@ -27,7 +27,7 @@ public class IndexModel : BasePageModel
 
     public async Task<IActionResult> OnGet()
     {
-        
+
         Podcasts = await PodcastRepository.GetPodcasts(new PodcastsQuery
         {
             UserId = UserId

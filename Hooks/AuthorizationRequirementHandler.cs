@@ -14,7 +14,7 @@ public class AuthorizationRequirementHandler : IPluginHookFilter
 
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly PodcastRepository _podcastRepository;
-        
+
     public AuthorizationRequirementHandler(
         UserManager<ApplicationUser> userManager,
         PodcastRepository podcastRepository)
@@ -22,18 +22,19 @@ public class AuthorizationRequirementHandler : IPluginHookFilter
         _userManager = userManager;
         _podcastRepository = podcastRepository;
     }
-    
+
     public async Task<object> Execute(object args)
     {
         var obj = (AuthorizationFilterHandle)args;
         var httpContext = obj.HttpContext;
         var userId = _userManager.GetUserId(obj.Context.User);
         Podcast podcast = null;
-        
+
         var routeData = httpContext.GetRouteData();
         if (routeData.Values.TryGetValue("podcastId", out var vPodcastId) && vPodcastId is string podcastId)
         {
-            podcast = await _podcastRepository.GetPodcast(new PodcastsQuery {
+            podcast = await _podcastRepository.GetPodcast(new PodcastsQuery
+            {
                 UserId = userId,
                 PodcastId = podcastId
             });
@@ -59,7 +60,7 @@ public class AuthorizationRequirementHandler : IPluginHookFilter
         {
             httpContext.Items["BTCPAY.PODSERVER.PODCAST"] = podcast;
         }
-        
+
         return obj;
     }
 }

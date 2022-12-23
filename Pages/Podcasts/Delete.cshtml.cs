@@ -15,22 +15,25 @@ public class DeleteModel : BasePageModel
     public Podcast Podcast { get; set; }
 
     public DeleteModel(UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository) : base(userManager, podcastRepository) {}
+        PodcastRepository podcastRepository) : base(userManager, podcastRepository) { }
 
     public async Task<IActionResult> OnGet(string podcastId)
     {
-        Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery {
+        Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery
+        {
             UserId = UserId,
             PodcastId = podcastId
         });
-        if (Podcast == null) return NotFound();
-        
+        if (Podcast == null)
+            return NotFound();
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(string podcastId)
     {
-        Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery {
+        Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery
+        {
             UserId = UserId,
             PodcastId = podcastId,
             IncludeEpisodes = true,
@@ -38,7 +41,8 @@ public class DeleteModel : BasePageModel
             IncludeSeasons = true,
             IncludeContributions = true
         });
-        if (Podcast == null) return NotFound();
+        if (Podcast == null)
+            return NotFound();
 
         await PodcastRepository.RemovePodcast(Podcast);
         TempData[WellKnownTempData.SuccessMessage] = "Podcast successfully deleted.";

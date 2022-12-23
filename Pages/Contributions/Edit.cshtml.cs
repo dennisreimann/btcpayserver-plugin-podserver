@@ -18,39 +18,44 @@ public class EditModel : BasePageModel
     public Contribution Contribution { get; set; }
 
     public EditModel(UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository, IFileService fileService) : base(userManager, podcastRepository) {}
+        PodcastRepository podcastRepository, IFileService fileService) : base(userManager, podcastRepository) { }
 
     public async Task<IActionResult> OnGet(string podcastId, string personId, [FromQuery] string episodeId)
     {
         await InitModel(podcastId, personId, episodeId);
-        
-        if (Podcast == null) return NotFound();
-        if (Contribution == null) return NotFound();
+
+        if (Podcast == null)
+            return NotFound();
+        if (Contribution == null)
+            return NotFound();
 
         if (!Podcast.People.Any())
         {
             TempData[WellKnownTempData.ErrorMessage] = "You need to add a person first, in order to create their contributions.";
             return RedirectToPage("/Person/Create", new { podcastId = Podcast.PodcastId });
         }
-        
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(string podcastId, string personId, [FromQuery] string episodeId)
     {
         await InitModel(podcastId, personId, episodeId);
-        
-        if (Podcast == null) return NotFound();
-        if (Contribution == null) return NotFound();
 
-        if (!ModelState.IsValid) return Page();
+        if (Podcast == null)
+            return NotFound();
+        if (Contribution == null)
+            return NotFound();
+
+        if (!ModelState.IsValid)
+            return Page();
 
         var isNew = personId == null;
-        
-        if (await TryUpdateModelAsync(Contribution, 
+
+        if (await TryUpdateModelAsync(Contribution,
                 "contribution",
                 c => c.PersonId,
-                c => c.Role, 
+                c => c.Role,
                 c => c.Split))
         {
             await PodcastRepository.AddOrUpdateContribution(Contribution);
@@ -58,10 +63,10 @@ public class EditModel : BasePageModel
             {
                 TempData[WellKnownTempData.SuccessMessage] = $"Contribution successfully {(isNew ? "created" : "updated")}.";
             }
-        
+
             return RedirectToPage("./Index", new { podcastId = Contribution.PodcastId, episodeId = Contribution.EpisodeId });
         }
-        
+
         return Page();
     }
 

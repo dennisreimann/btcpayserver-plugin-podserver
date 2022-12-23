@@ -7,7 +7,7 @@ namespace BTCPayServer.Plugins.PodServer.Pages;
 public static class Helpers
 {
     public static string Sats(LightMoney amount) => $"{Math.Round(amount.ToUnit(LightMoneyUnit.Satoshi))} sats";
-    
+
     public static IEnumerable<SelectListItem> LanguageOptions => CultureInfo.GetCultures(CultureTypes.NeutralCultures)
         .Select(ci => ci.TwoLetterISOLanguageName == "iv"
             ? new SelectListItem(string.Empty, string.Empty)
@@ -23,11 +23,11 @@ public static class Helpers
         new SelectListItem { Text = "Podcast", Value = "podcast" },
         new SelectListItem { Text = "Video", Value = "video" }
     };
-    
+
     public static IEnumerable<SelectListItem> CategoryOptions => new[]
     {
         new SelectListItem(string.Empty, string.Empty),
-        
+
         new SelectListItem { Text = "Arts", Value = "Arts", Group = _categoryGroupArts },
         new SelectListItem { Text = "Books", Value = "Books", Group = _categoryGroupArts },
         new SelectListItem { Text = "Design", Value = "Design", Group = _categoryGroupArts },
@@ -35,7 +35,7 @@ public static class Helpers
         new SelectListItem { Text = "Food", Value = "Food", Group = _categoryGroupArts },
         new SelectListItem { Text = "Performing Arts", Value = "Performing Arts", Group = _categoryGroupArts },
         new SelectListItem { Text = "Visual Arts", Value = "Visual Arts", Group = _categoryGroupArts },
-        
+
         new SelectListItem { Text = "Business", Value = "Business", Group = _categoryGroupBusiness },
         new SelectListItem { Text = "Careers", Value = "Careers", Group = _categoryGroupBusiness },
         new SelectListItem { Text = "Entrepreneurship", Value = "Entrepreneurship", Group = _categoryGroupBusiness },
@@ -43,27 +43,27 @@ public static class Helpers
         new SelectListItem { Text = "Management", Value = "Management", Group = _categoryGroupBusiness },
         new SelectListItem { Text = "Marketing", Value = "Marketing", Group = _categoryGroupBusiness },
         new SelectListItem { Text = "Non-Profit", Value = "Non-Profit", Group = _categoryGroupBusiness },
-        
+
         new SelectListItem { Text = "Comedy", Value = "Comedy", Group = _categoryGroupComedy },
         new SelectListItem { Text = "Comedy Interviews", Value = "Comedy Interviews", Group = _categoryGroupComedy },
         new SelectListItem { Text = "Improv", Value = "Improv", Group = _categoryGroupComedy },
         new SelectListItem { Text = "Stand-Up", Value = "Stand-Up", Group = _categoryGroupComedy },
-        
+
         new SelectListItem { Text = "Education", Value = "Education", Group = _categoryGroupEducation },
         new SelectListItem { Text = "Courses", Value = "Courses", Group = _categoryGroupEducation },
         new SelectListItem { Text = "How To", Value = "How To", Group = _categoryGroupEducation },
         new SelectListItem { Text = "Language Learning", Value = "Language Learning", Group = _categoryGroupEducation },
         new SelectListItem { Text = "Self-Improvement", Value = "Self-Improvement", Group = _categoryGroupEducation },
-        
+
         new SelectListItem { Text = "Fiction", Value = "Fiction", Group = _categoryGroupFiction },
         new SelectListItem { Text = "Comedy Fiction", Value = "Comedy Fiction", Group = _categoryGroupFiction },
         new SelectListItem { Text = "Drama", Value = "Drama", Group = _categoryGroupFiction },
         new SelectListItem { Text = "Science Fiction", Value = "Science Fiction", Group = _categoryGroupFiction },
-        
+
         new SelectListItem { Text = "Government", Value = "Government", Group = _categoryGroupGovernment },
-        
+
         new SelectListItem { Text = "History", Value = "History", Group = _categoryGroupHistory },
-        
+
         new SelectListItem { Text = "Health & Fitness", Value = "Health & Fitness", Group = _categoryGroupHealth },
         new SelectListItem { Text = "Alternative Health", Value = "Alternative Health", Group = _categoryGroupHealth },
         new SelectListItem { Text = "Fitness", Value = "Fitness", Group = _categoryGroupHealth },
@@ -71,13 +71,13 @@ public static class Helpers
         new SelectListItem { Text = "Mental Health", Value = "Mental Health", Group = _categoryGroupHealth },
         new SelectListItem { Text = "Nutrition", Value = "Nutrition", Group = _categoryGroupHealth },
         new SelectListItem { Text = "Sexuality", Value = "Sexuality", Group = _categoryGroupHealth },
-        
+
         new SelectListItem { Text = "Kids & Family", Value = "Kids & Family", Group = _categoryGroupKids },
         new SelectListItem { Text = "Education for Kids", Value = "Education for Kids", Group = _categoryGroupKids },
         new SelectListItem { Text = "Parenting", Value = "Parenting", Group = _categoryGroupKids },
         new SelectListItem { Text = "Pets & Animals", Value = "Pets & Animals", Group = _categoryGroupKids },
         new SelectListItem { Text = "Stories for Kids", Value = "Stories for Kids", Group = _categoryGroupKids },
-        
+
         new SelectListItem { Text = "Leisure", Value = "Leisure", Group = _categoryGroupLeisure },
         new SelectListItem { Text = "Animation & Manga", Value = "Animation & Manga", Group = _categoryGroupLeisure },
         new SelectListItem { Text = "Automotive", Value = "Automotive", Group = _categoryGroupLeisure },
@@ -92,7 +92,7 @@ public static class Helpers
         new SelectListItem { Text = "Music Commentary", Value = "Music Commentary", Group = _categoryGroupMusic },
         new SelectListItem { Text = "Music History", Value = "Music History", Group = _categoryGroupMusic },
         new SelectListItem { Text = "Music Interviews", Value = "Music Interviews", Group = _categoryGroupMusic },
-        
+
         new SelectListItem { Text = "News", Value = "News", Group = _categoryGroupNews },
         new SelectListItem { Text = "Business News", Value = "Business News", Group = _categoryGroupNews },
         new SelectListItem { Text = "Daily News", Value = "Daily News", Group = _categoryGroupNews },
@@ -121,14 +121,14 @@ public static class Helpers
         new SelectListItem { Text = "Nature", Value = "Nature", Group = _categoryGroupScience },
         new SelectListItem { Text = "Physics", Value = "Physics", Group = _categoryGroupScience },
         new SelectListItem { Text = "Social Sciences", Value = "Social Sciences", Group = _categoryGroupScience },
-        
+
         new SelectListItem { Text = "Society & Culture", Value = "Society & Culture", Group = _categoryGroupSociety },
         new SelectListItem { Text = "Documentary", Value = "Documentary", Group = _categoryGroupSociety },
         new SelectListItem { Text = "Personal Journals", Value = "Personal Journals", Group = _categoryGroupSociety },
         new SelectListItem { Text = "Philosophy", Value = "Philosophy", Group = _categoryGroupSociety },
         new SelectListItem { Text = "Places & Travel", Value = "Places & Travel", Group = _categoryGroupSociety },
         new SelectListItem { Text = "Relationships", Value = "Relationships", Group = _categoryGroupSociety },
-        
+
         new SelectListItem { Text = "Sports", Value = "Sports", Group = _categoryGroupSports },
         new SelectListItem { Text = "Baseball", Value = "Baseball", Group = _categoryGroupSports },
         new SelectListItem { Text = "Basketball", Value = "Basketball", Group = _categoryGroupSports },
@@ -145,11 +145,11 @@ public static class Helpers
         new SelectListItem { Text = "Volleyball", Value = "Volleyball", Group = _categoryGroupSports },
         new SelectListItem { Text = "Wilderness", Value = "Wilderness", Group = _categoryGroupSports },
         new SelectListItem { Text = "Wrestling", Value = "Wrestling", Group = _categoryGroupSports },
-        
+
         new SelectListItem { Text = "Technology", Value = "Technology", Group = _categoryGroupTechnology },
-        
+
         new SelectListItem { Text = "True Crime", Value = "True Crime", Group = _categoryGroupTrueCrime },
-        
+
         new SelectListItem { Text = "TV & Film", Value = "TV & Film", Group = _categoryGroupTv },
         new SelectListItem { Text = "After Shows", Value = "After Shows", Group = _categoryGroupTv },
         new SelectListItem { Text = "Film History", Value = "Film History", Group = _categoryGroupTv },
@@ -157,7 +157,7 @@ public static class Helpers
         new SelectListItem { Text = "Film Reviews", Value = "Film Reviews", Group = _categoryGroupTv },
         new SelectListItem { Text = "TV Reviews", Value = "TV Reviews", Group = _categoryGroupTv }
     };
-        
+
     private static readonly SelectListGroup _categoryGroupArts = new() { Name = "Arts" };
     private static readonly SelectListGroup _categoryGroupBusiness = new() { Name = "Business" };
     private static readonly SelectListGroup _categoryGroupComedy = new() { Name = "Comedy" };

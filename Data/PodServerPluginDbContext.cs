@@ -12,7 +12,7 @@ public class PodServerPluginDbContext : DbContext
     {
         _designTime = designTime;
     }
-        
+
     public DbSet<Podcast> Podcasts { get; set; }
     public DbSet<Episode> Episodes { get; set; }
     public DbSet<Editor> Editors { get; set; }
@@ -49,7 +49,7 @@ public class PodServerPluginDbContext : DbContext
                 }
             }
         }
-        
+
         Contribution.OnModelCreating(modelBuilder);
         Editor.OnModelCreating(modelBuilder);
         Enclosure.OnModelCreating(modelBuilder);

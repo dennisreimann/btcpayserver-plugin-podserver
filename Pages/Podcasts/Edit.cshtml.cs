@@ -26,18 +26,21 @@ public class EditModel : BasePageModel
     public async Task<IActionResult> OnGet(string podcastId)
     {
         Podcast = await GetPodcast(podcastId);
-        if (Podcast == null) return NotFound();
-        
+        if (Podcast == null)
+            return NotFound();
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(string podcastId)
     {
         Podcast = await GetPodcast(podcastId);
-        if (Podcast == null) return NotFound();
-        
-        if (!ModelState.IsValid) return Page();
-        
+        if (Podcast == null)
+            return NotFound();
+
+        if (!ModelState.IsValid)
+            return Page();
+
         if (ImageFile != null)
         {
             // delete existing image
@@ -58,7 +61,7 @@ public class EditModel : BasePageModel
         }
 
         if (!await TryUpdateModelAsync(
-                Podcast, 
+                Podcast,
                 "podcast",
                 p => p.Title,
                 p => p.Description,
@@ -73,19 +76,20 @@ public class EditModel : BasePageModel
         {
             return Page();
         }
-        
+
         await PodcastRepository.AddOrUpdatePodcast(Podcast);
         if (TempData[WellKnownTempData.ErrorMessage] is null)
         {
             TempData[WellKnownTempData.SuccessMessage] = "Podcast successfully updated.";
         }
-        
+
         return RedirectToPage("./Podcast", new { podcastId = Podcast.PodcastId });
     }
 
     private async Task<Podcast> GetPodcast(string podcastId)
     {
-        return await PodcastRepository.GetPodcast(new PodcastsQuery {
+        return await PodcastRepository.GetPodcast(new PodcastsQuery
+        {
             UserId = UserId,
             PodcastId = podcastId
         });

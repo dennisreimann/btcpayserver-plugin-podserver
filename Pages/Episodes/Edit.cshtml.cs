@@ -30,7 +30,8 @@ public class EditModel : BasePageModel
     public async Task<IActionResult> OnGet(string podcastId, string episodeId)
     {
         Episode = await GetEpisode(podcastId, episodeId);
-        if (Episode == null) return NotFound();
+        if (Episode == null)
+            return NotFound();
 
         SeasonItems = await GetSeasonItems(Episode.PodcastId);
 
@@ -43,19 +44,21 @@ public class EditModel : BasePageModel
             var highestNumber = episodes.MaxBy(e => e.Number)?.Number ?? 0;
             Episode.Number = highestNumber + 1;
         }
-        
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(string podcastId, string episodeId)
     {
         Episode = await GetEpisode(podcastId, episodeId);
-        if (Episode == null) return NotFound();
-        
+        if (Episode == null)
+            return NotFound();
+
         SeasonItems = await GetSeasonItems(Episode.PodcastId);
-        
-        if (!ModelState.IsValid) return Page();
-        
+
+        if (!ModelState.IsValid)
+            return Page();
+
         if (ImageFile != null)
         {
             // delete existing image
@@ -74,7 +77,7 @@ public class EditModel : BasePageModel
                 TempData[WellKnownTempData.ErrorMessage] = $"Could not save image: {e.Message}";
             }
         }
-        
+
         if (EnclosureFile != null)
         {
             // delete existing enclosure
@@ -107,7 +110,7 @@ public class EditModel : BasePageModel
         }
 
         if (await TryUpdateModelAsync(
-            Episode, 
+            Episode,
             "episode",
             e => e.Title,
             e => e.Description,
@@ -117,16 +120,16 @@ public class EditModel : BasePageModel
             e => e.PublishedAt,
             e => e.Enclosures))
         {
-            Episode.LastUpdatedAt = DateTimeOffset.UtcNow; 
+            Episode.LastUpdatedAt = DateTimeOffset.UtcNow;
             await PodcastRepository.AddOrUpdateEpisode(Episode);
             if (TempData[WellKnownTempData.ErrorMessage] is null)
             {
                 TempData[WellKnownTempData.SuccessMessage] = "Episode successfully updated.";
             }
-        
+
             return RedirectToPage("./Episode", new { podcastId = Episode.PodcastId, episodeId = Episode.EpisodeId });
         }
-        
+
         return Page();
     }
 

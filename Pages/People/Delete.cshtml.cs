@@ -15,12 +15,13 @@ public class DeleteModel : BasePageModel
     public Person Person { get; set; }
 
     public DeleteModel(UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository) : base(userManager, podcastRepository) {}
+        PodcastRepository podcastRepository) : base(userManager, podcastRepository) { }
 
     public async Task<IActionResult> OnGet(string podcastId, string personId)
     {
         Person = await GetPerson(podcastId, personId);
-        if (Person == null) return NotFound();
+        if (Person == null)
+            return NotFound();
 
         return Page();
     }
@@ -28,7 +29,8 @@ public class DeleteModel : BasePageModel
     public async Task<IActionResult> OnPostAsync(string podcastId, string personId)
     {
         Person = await GetPerson(podcastId, personId);
-        if (Person == null) return NotFound();
+        if (Person == null)
+            return NotFound();
 
         await PodcastRepository.RemovePerson(Person);
         TempData[WellKnownTempData.SuccessMessage] = "Person successfully removed.";
@@ -38,7 +40,8 @@ public class DeleteModel : BasePageModel
 
     private async Task<Person> GetPerson(string podcastId, string personId)
     {
-        return await PodcastRepository.GetPerson(new PeopleQuery {
+        return await PodcastRepository.GetPerson(new PeopleQuery
+        {
             PodcastId = podcastId,
             PersonId = personId,
             IncludeContributions = true

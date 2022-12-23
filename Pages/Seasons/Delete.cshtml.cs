@@ -15,26 +15,30 @@ public class DeleteModel : BasePageModel
     public Season Season { get; set; }
 
     public DeleteModel(UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository) : base(userManager, podcastRepository) {}
+        PodcastRepository podcastRepository) : base(userManager, podcastRepository) { }
 
     public async Task<IActionResult> OnGet(string podcastId, string seasonId)
     {
-        Season = await PodcastRepository.GetSeason(new SeasonsQuery {
+        Season = await PodcastRepository.GetSeason(new SeasonsQuery
+        {
             PodcastId = podcastId,
             SeasonId = seasonId
         });
-        if (Season == null) return NotFound();
+        if (Season == null)
+            return NotFound();
 
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(string podcastId, string seasonId)
     {
-        Season = await PodcastRepository.GetSeason(new SeasonsQuery {
+        Season = await PodcastRepository.GetSeason(new SeasonsQuery
+        {
             PodcastId = podcastId,
             SeasonId = seasonId
         });
-        if (Season == null) return NotFound();
+        if (Season == null)
+            return NotFound();
 
         await PodcastRepository.RemoveSeason(Season);
         TempData[WellKnownTempData.SuccessMessage] = "Season successfully deleted.";

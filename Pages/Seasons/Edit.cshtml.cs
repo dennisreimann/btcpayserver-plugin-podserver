@@ -17,17 +17,19 @@ public class EditModel : BasePageModel
     public Season Season { get; set; }
 
     public EditModel(UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository, IFileService fileService) : base(userManager, podcastRepository) {}
+        PodcastRepository podcastRepository, IFileService fileService) : base(userManager, podcastRepository) { }
 
     public async Task<IActionResult> OnGet(string podcastId, string seasonId)
     {
-        Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery {
+        Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery
+        {
             UserId = UserId,
             PodcastId = podcastId,
             IncludeSeasons = true
         });
-        if (Podcast == null) return NotFound();
-        
+        if (Podcast == null)
+            return NotFound();
+
         if (seasonId == null)
         {
             Season = new Season
@@ -41,13 +43,15 @@ public class EditModel : BasePageModel
         }
         else
         {
-            Season = await PodcastRepository.GetSeason(new SeasonsQuery {
+            Season = await PodcastRepository.GetSeason(new SeasonsQuery
+            {
                 PodcastId = podcastId,
                 SeasonId = seasonId,
             });
-            if (Season == null) return NotFound();
+            if (Season == null)
+                return NotFound();
         }
-        
+
         return Page();
     }
 
@@ -62,14 +66,16 @@ public class EditModel : BasePageModel
         {
             Season = await PodcastRepository.GetSeason(new SeasonsQuery
             {
-                PodcastId = podcastId, 
+                PodcastId = podcastId,
                 SeasonId = seasonId
             });
-            if (Season == null) return NotFound();
+            if (Season == null)
+                return NotFound();
         }
 
-        if (!ModelState.IsValid) return Page();
-        
+        if (!ModelState.IsValid)
+            return Page();
+
         if (!await TryUpdateModelAsync(Season,
                 "season",
             s => s.Name,
@@ -77,13 +83,13 @@ public class EditModel : BasePageModel
         {
             return Page();
         }
-        
+
         await PodcastRepository.AddOrUpdateSeason(Season);
         if (TempData[WellKnownTempData.ErrorMessage] is null)
         {
             TempData[WellKnownTempData.SuccessMessage] = $"Season successfully {(isNew ? "created" : "updated")}.";
         }
-        
+
         return RedirectToPage("./Index", new { podcastId = Season.PodcastId });
     }
 }

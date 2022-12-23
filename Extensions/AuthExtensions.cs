@@ -7,7 +7,7 @@ public static class AuthExtensions
 {
     public static void AddAppAuthorization(this IServiceCollection services)
     {
-        services.AddAuthorization(opts => 
+        services.AddAuthorization(opts =>
         {
             foreach (var policy in PodServerPolicies.AllPolicies)
             {

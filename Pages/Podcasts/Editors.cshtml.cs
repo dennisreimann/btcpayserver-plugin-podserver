@@ -15,11 +15,11 @@ namespace BTCPayServer.Plugins.PodServer.Pages.Podcasts;
 public class EditorsModel : BasePageModel
 {
     public Podcast Podcast { get; set; }
-    
+
     [BindProperty]
     public EditorViewModel Editor { get; set; }
     public List<EditorViewModel> Editors { get; set; }
-    
+
     public class EditorViewModel
     {
         [Required]
@@ -31,25 +31,28 @@ public class EditorsModel : BasePageModel
 
     public EditorsModel(
         UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository) : base(userManager, podcastRepository) {}
+        PodcastRepository podcastRepository) : base(userManager, podcastRepository) { }
 
     public async Task<IActionResult> OnGetAsync(string podcastId)
     {
         Podcast = await GetPodcast(podcastId);
-        if (Podcast == null) return NotFound();
+        if (Podcast == null)
+            return NotFound();
 
         Editors = await GetEditorVMs(Podcast.Editors);
-        
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostAddAsync(string podcastId)
     {
         Podcast = await GetPodcast(podcastId);
-        if (Podcast == null) return NotFound();
+        if (Podcast == null)
+            return NotFound();
 
         Editors = await GetEditorVMs(Podcast.Editors);
-        if (!ModelState.IsValid) return Page();
+        if (!ModelState.IsValid)
+            return Page();
 
         var user = await UserManager.FindByEmailAsync(Editor.Email);
         if (user == null)
@@ -63,7 +66,7 @@ public class EditorsModel : BasePageModel
             ModelState.AddModelError(nameof(Editor.Role), "Invalid role");
             return Page();
         }
-        
+
         await PodcastRepository.AddOrUpdateEditor(Podcast.PodcastId, user.Id, Editor.Role);
         TempData[WellKnownTempData.SuccessMessage] = "Editor successfully added.";
         return RedirectToPage("./Editors", new { podcastId });
@@ -72,12 +75,13 @@ public class EditorsModel : BasePageModel
     public async Task<IActionResult> OnPostRemoveAsync(string podcastId, string userId)
     {
         Podcast = await GetPodcast(podcastId);
-        if (Podcast == null) return NotFound();
+        if (Podcast == null)
+            return NotFound();
 
         try
         {
             await PodcastRepository.RemoveEditor(Podcast.PodcastId, userId);
-            
+
             TempData[WellKnownTempData.SuccessMessage] = "Editor successfully removed.";
             return RedirectToPage("./Editors", new { podcastId });
         }
@@ -92,7 +96,8 @@ public class EditorsModel : BasePageModel
 
     private async Task<Podcast> GetPodcast(string podcastId)
     {
-        return await PodcastRepository.GetPodcast(new PodcastsQuery {
+        return await PodcastRepository.GetPodcast(new PodcastsQuery
+        {
             UserId = UserId,
             PodcastId = podcastId,
             IncludeEditors = true

@@ -13,7 +13,7 @@ public class TaskQueueService : BackgroundService
     public TaskQueueService(
         ImportRepository importRepository,
         FeedImporter feedImporter,
-        ITaskQueue taskQueue, 
+        ITaskQueue taskQueue,
         ILogger<TaskQueueService> logger)
     {
         _importRepository = importRepository;
@@ -28,7 +28,7 @@ public class TaskQueueService : BackgroundService
 
         IEnumerable<Import> enumerable = iss.ToList();
         _logger.LogInformation("Starting with {Count} remaining imports", enumerable.Count());
-        
+
         foreach (var import in enumerable)
         {
             await _taskQueue.QueueAsync(cancelToken => _feedImporter.Import(import.ImportId, cancelToken));

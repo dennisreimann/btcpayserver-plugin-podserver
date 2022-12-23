@@ -11,7 +11,7 @@ public abstract class BasePageModel : PageModel
     protected readonly UserManager<ApplicationUser> UserManager;
     protected readonly PodcastRepository PodcastRepository;
     protected string UserId => UserManager.GetUserId(User);
-        
+
     protected BasePageModel(
         UserManager<ApplicationUser> userManager,
         PodcastRepository podcastRepository)

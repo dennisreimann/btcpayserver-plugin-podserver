@@ -13,7 +13,7 @@ public class ImportRepository
     {
         _dbContextFactory = dbContextFactory;
     }
-    
+
     public async Task<IEnumerable<Import>> GetUnfinishedImports()
     {
         await using var dbContext = _dbContextFactory.CreateContext();
@@ -21,7 +21,7 @@ public class ImportRepository
             .Where(i => i.Status != ImportStatus.Succeeded && i.Status != ImportStatus.Failed)
             .ToListAsync();
     }
-    
+
     public async Task<Import> GetImport(string importId)
     {
         await using var dbContext = _dbContextFactory.CreateContext();
@@ -29,20 +29,21 @@ public class ImportRepository
             .Where(i => i.ImportId == importId)
             .FirstOrDefaultAsync();
     }
-    
+
     public async Task<Import> CreateImport(string rss, string podcastId, string userId)
     {
         var import = new Import { PodcastId = podcastId, UserId = userId, Raw = rss };
         return await AddOrUpdateImport(import);
     }
-    
+
     public async Task UpdateStatus(Import import, ImportStatus status, string log = null)
     {
         await using var dbContext = _dbContextFactory.CreateContext();
-        
+
         import.Status = status;
-        if (!string.IsNullOrEmpty(log)) import.Log += log;
-        
+        if (!string.IsNullOrEmpty(log))
+            import.Log += log;
+
         dbContext.Imports.Update(import);
         await dbContext.SaveChangesAsync();
     }

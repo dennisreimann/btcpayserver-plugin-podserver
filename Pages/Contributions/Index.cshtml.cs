@@ -1,4 +1,4 @@
-﻿using BTCPayServer.Abstractions.Constants;
+using BTCPayServer.Abstractions.Constants;
 using BTCPayServer.Data;
 using BTCPayServer.Plugins.PodServer.Authentication;
 using BTCPayServer.Plugins.PodServer.Data.Models;
@@ -18,13 +18,14 @@ public class IndexModel : BasePageModel
     public bool HasPeople { get; set; }
 
     public IndexModel(UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository) : base(userManager, podcastRepository) {}
+        PodcastRepository podcastRepository) : base(userManager, podcastRepository) { }
 
     public async Task<IActionResult> OnGet(string podcastId, string episodeId)
     {
         if (string.IsNullOrEmpty(episodeId))
         {
-            Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery {
+            Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery
+            {
                 UserId = UserId,
                 PodcastId = podcastId,
                 IncludePeople = true,
@@ -34,7 +35,8 @@ public class IndexModel : BasePageModel
         }
         else
         {
-            Episode = await PodcastRepository.GetEpisode(new EpisodesQuery {
+            Episode = await PodcastRepository.GetEpisode(new EpisodesQuery
+            {
                 PodcastId = podcastId,
                 EpisodeId = episodeId,
                 IncludePeople = true,
@@ -46,7 +48,7 @@ public class IndexModel : BasePageModel
         }
 
         HasPeople = Podcast.People.Any();
-        
+
         return Page();
     }
 }

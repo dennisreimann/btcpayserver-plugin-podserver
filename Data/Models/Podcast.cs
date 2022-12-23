@@ -17,39 +17,39 @@ public class Podcast
     public ICollection<Season> Seasons { get; set; } = new List<Season>();
 
     public ICollection<Episode> Episodes { get; set; } = new List<Episode>();
-    
+
     public ICollection<Person> People { get; set; } = new List<Person>();
     public ICollection<Contribution> Contributions { get; set; } = new List<Contribution>();
     public ICollection<Import> Imports { get; set; } = new List<Import>();
-    
+
     // Properties
     [Required]
     [DisplayName("User ID")]
     public string OwnerId { get; set; }
-    
+
     [Required]
     public string Title { get; set; }
 
     [DisplayName("Link ID")]
     public string Slug { get; set; }
-    
+
     [Required]
     public string Description { get; set; }
 
     [Required]
     public string Medium { get; set; } = "podcast";
-    
+
     [Required]
     public string Language { get; set; }
 
     public string Category { get; set; }
-    
+
     public string ImageFileId { get; set; }
-    
+
     public string Owner { get; set; }
-    
+
     public string Email { get; set; }
-    
+
     [DisplayName("Website URL")]
     public string Url { get; set; }
 

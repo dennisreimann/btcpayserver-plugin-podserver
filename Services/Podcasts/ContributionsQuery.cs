@@ -6,6 +6,6 @@ public class ContributionsQuery
     public string EpisodeId { get; set; }
     public string PersonId { get; set; }
     public bool PodcastOnly { get; set; }
-    
+
     public bool IncludePerson { get; set; }
 }

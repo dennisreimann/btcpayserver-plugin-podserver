@@ -34,7 +34,7 @@ namespace BTCPayServer.Plugins.PodServer
             });
 
             services.AddSingleton<IPluginHookFilter, AuthorizationRequirementHandler>();
-            
+
             services.AddAppServices();
             services.AddAppAuthorization();
         }

@@ -15,21 +15,23 @@ public class PublicPodcastModel : BasePageModel
     public IEnumerable<Episode> MoreEpisodes { get; set; }
 
     public PublicPodcastModel(UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository) : base(userManager, podcastRepository) {}
+        PodcastRepository podcastRepository) : base(userManager, podcastRepository) { }
 
     public async Task<IActionResult> OnGetAsync(string podcastSlug)
     {
-        Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery {
+        Podcast = await PodcastRepository.GetPodcast(new PodcastsQuery
+        {
             Slug = podcastSlug
         });
-        if (Podcast == null) return NotFound();
+        if (Podcast == null)
+            return NotFound();
 
         var episodes = (await PodcastRepository.GetEpisodes(new EpisodesQuery
         {
-            PodcastId = Podcast.PodcastId, 
+            PodcastId = Podcast.PodcastId,
             OnlyPublished = true
         })).ToList();
-        
+
         if (episodes.Any())
         {
             LatestEpisode = episodes.First();

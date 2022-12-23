@@ -10,37 +10,37 @@ public class Episode
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [DisplayName("Episode ID")]
     public string EpisodeId { get; set; }
-    
+
     [Required]
     public string Title { get; set; }
-    
+
     [DisplayName("Link ID")]
     public string Slug { get; set; }
-    
+
     [Required]
     public string Description { get; set; }
-    
+
     [DisplayName("Publish date")]
     public DateTimeOffset? PublishedAt { get; set; }
-    
+
     [DisplayName("Last update")]
     public DateTimeOffset LastUpdatedAt { get; set; }
-    
+
     public string ImageFileId { get; set; }
-    
+
     [Range(1, int.MaxValue)]
     public int? Number { get; set; }
-    
+
     public string ImportGuid { get; set; }
-    
+
     // Relations
     [Required]
     public string PodcastId { get; set; }
     public Podcast Podcast { get; set; }
-    
+
     public string SeasonId { get; set; }
     public Season Season { get; set; }
-    
+
     public ICollection<Contribution> Contributions { get; set; } = new List<Contribution>();
     public ICollection<Enclosure> Enclosures { get; set; } = new List<Enclosure>();
 
@@ -48,7 +48,7 @@ public class Episode
     {
         get => Enclosures.FirstOrDefault(e => !e.IsAlternate);
     }
-    
+
     public bool IsPublished
     {
         get => PublishedAt <= DateTime.UtcNow && MainEnclosure != null;
@@ -67,7 +67,7 @@ public class Episode
             .HasOne(e => e.Season)
             .WithMany(s => s.Episodes)
             .OnDelete(DeleteBehavior.SetNull);
-        
+
         builder
             .Entity<Episode>()
             .HasIndex(e => new { e.PodcastId, e.Slug })
