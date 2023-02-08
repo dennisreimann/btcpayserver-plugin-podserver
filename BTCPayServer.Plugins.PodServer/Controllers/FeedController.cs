@@ -258,12 +258,13 @@ public class FeedController : Controller
             await xml.WriteEndElementAsync();
         }
 
-        // PodServer - TODO: Make the split configurable
+        // PodServer
         await xml.WriteStartElementAsync("podcast", "valueRecipient", null);
         xml.WriteAttributeString("name", "PodServer");
         xml.WriteAttributeString("type", ValueRecipientType.Node.ToString());
         xml.WriteAttributeString("address", "0231f73aef9bbdbf69e840640255946264026b56e17701f2d410b08b8b6e5d637a");
         xml.WriteAttributeString("split", "1");
+        xml.WriteAttributeString("fee", "true");
         await xml.WriteEndElementAsync();
 
         await xml.WriteEndElementAsync();
