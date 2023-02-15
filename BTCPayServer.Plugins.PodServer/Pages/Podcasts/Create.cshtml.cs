@@ -8,6 +8,7 @@ using BTCPayServer.Plugins.PodServer.Data.Models;
 using BTCPayServer.Plugins.PodServer.Extensions;
 using BTCPayServer.Plugins.PodServer.Services.Imports;
 using BTCPayServer.Plugins.PodServer.Services.Podcasts;
+using BTCPayServer.Services.Apps;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -18,14 +19,30 @@ namespace BTCPayServer.Plugins.PodServer.Pages.Podcasts;
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.Cookie, Policy = Policies.CanViewProfile)]
 public class CreateModel : BasePageModel
 {
+    private readonly AppService _appService;
+
     public Podcast Podcast { get; set; }
 
-    public CreateModel(UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository) : base(userManager, podcastRepository) { }
+    [BindProperty(SupportsGet = true)]
+    public string AppId { get; set; }
 
-    public IActionResult OnGet()
+    public CreateModel(
+        UserManager<ApplicationUser> userManager,
+        PodcastRepository podcastRepository,
+        AppService appService) : base(userManager, podcastRepository)
+    {
+        _appService = appService;
+    }
+
+    public async Task<IActionResult> OnGet()
     {
         Podcast = new Podcast();
+
+        if (!string.IsNullOrEmpty(AppId))
+        {
+            var appData = await _appService.GetApp(AppId, PodServerApp.AppType);
+            Podcast.Title = appData.Name;
+        }
 
         return Page();
     }
@@ -51,6 +68,11 @@ public class CreateModel : BasePageModel
             await PodcastRepository.AddOrUpdatePodcast(Podcast);
             await PodcastRepository.AddOrUpdateEditor(Podcast.PodcastId, UserId, EditorRole.Admin);
 
+            if (!string.IsNullOrEmpty(AppId))
+            {
+                await AssociateApp(Podcast.PodcastId, AppId);
+            }
+
             TempData[WellKnownTempData.SuccessMessage] = "Podcast successfully created.";
             return RedirectToPage("./Podcast", new { podcastId = Podcast.PodcastId });
         }
@@ -72,6 +94,11 @@ public class CreateModel : BasePageModel
 
             Podcast = await importer.CreatePodcast(rss, UserId);
 
+            if (!string.IsNullOrEmpty(AppId))
+            {
+                await AssociateApp(Podcast.PodcastId, AppId);
+            }
+
             TempData[WellKnownTempData.SuccessMessage] = "Podcast successfully created. The feed is now being imported and the progress will be shown here.";
             return RedirectToPage("./Podcast", new { podcastId = Podcast.PodcastId });
         }
@@ -81,5 +108,14 @@ public class CreateModel : BasePageModel
                                                        (!string.IsNullOrEmpty(ex.InnerException?.Message) ? $" ({ex.InnerException.Message})" : "");
             return Page();
         }
+    }
+
+    private async Task AssociateApp(string podcastId, string appId)
+    {
+        var appData = await _appService.GetApp(appId, PodServerApp.AppType);
+        var settings = appData.GetSettings<PodServerSettings>();
+        settings.PodcastId = podcastId;
+        appData.SetSettings(settings);
+        await _appService.UpdateOrCreateApp(appData);;
     }
 }

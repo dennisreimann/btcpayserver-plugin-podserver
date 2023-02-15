@@ -1,14 +1,22 @@
 @using BTCPayServer.Plugins.PodServer.Services.Podcasts
 @using Microsoft.AspNetCore.Identity
 @using BTCPayServer.Data
+@using BTCPayServer.Services.Apps
+@inject AppService AppService;
 @inject PodcastRepository PodcastRepository;
-@inject UserManager<ApplicationUser> _userManager;
+@inject UserManager<ApplicationUser> UserManager;
 @{
-    var userId = _userManager.GetUserId(User);
+    var userId = UserManager.GetUserId(User);
     var podcasts = await PodcastRepository.GetPodcasts(new PodcastsQuery
     {
         UserId = userId
     });
+    var appsWithoutPodcasts = (await AppService.GetApps(PodServerApp.AppType))
+        .Where(appData =>
+        {
+            var settings = appData.GetSettings<PodServerSettings>();
+            return string.IsNullOrEmpty(settings.PodcastId);
+        });
 }
 <li class="nav-item">
     <a href="~/plugins/podserver" class="nav-link js-scroll-trigger @ViewData.IsActivePage(PodServerNavPages.Podcasts)" id="Nav-PodServer">
@@ -23,6 +31,14 @@
     <li class="nav-item" style="padding-left:calc(1.5rem + var(--btcpay-space-xs))">
         <a href="~/plugins/podserver/podcasts/@podcast.PodcastId" class="nav-link js-scroll-trigger @ViewData.IsActivePage(PodServerNavPages.Podcast, podcast.PodcastId) @ViewData.IsActivePage(PodServerNavPages.Episodes, podcast.PodcastId) @ViewData.IsActivePage(PodServerNavPages.People, podcast.PodcastId) @ViewData.IsActivePage(PodServerNavPages.Seasons, podcast.PodcastId)" id="Nav-PodServer-Podcast-@podcast.PodcastId">
             <span>@podcast.Title</span>
+        </a>
+    </li>
+}
+@foreach (var appData in appsWithoutPodcasts)
+{
+    <li class="nav-item" style="padding-left:calc(1.5rem + var(--btcpay-space-xs))">
+        <a href="~/plugins/podserver/podcasts/create?appId=@appData.Id" class="nav-link js-scroll-trigger @ViewData.IsActivePage(PodServerNavPages.Podcast, appData.Id)" id="Nav-PodServer-Podcast-@appData.Id">
+            <span>@appData.Name</span>
         </a>
     </li>
 }

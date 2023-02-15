@@ -50,7 +50,7 @@
                     </a>
                 </td>
                 <td class="text-end">
-                    <a asp-page="/Public/Podcast" asp-route-podcastSlug="@podcast.Slug" class="podcast-view" target="_blank">Public Page</a>
+                    <a asp-controller="Public" asp-action="ViewPodcast" asp-route-podcastSlug="@podcast.Slug" class="podcast-view" target="_blank">Public Page</a>
                     <span permission="@PodServerPolicies.CanManagePodcast"> - </span>
                     <a asp-page="./Edit" asp-route-podcastId="@podcast.PodcastId" class="podcast-edit" permission="@PodServerPolicies.CanManagePodcast">Edit</a>
                 </td>

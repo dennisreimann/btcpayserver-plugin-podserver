@@ -6,6 +6,7 @@
 @{
     var rootUri = Context.Request.GetAbsoluteRootUri();
     var imageUrl = await Model.GetImageUrl(rootUri);
+    var episodeUrl = $"./episode/{Safe.Raw(Model.Episode.Slug)}";
     var enclosureUrl = await Model.GetEnclosureUrl(rootUri);
 }
 
@@ -17,7 +18,7 @@
 <div class="player player--single mb-5">
     @if (imageUrl != null)
     {
-        <a class="player__coverlink" asp-page="/Public/Episode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@Model.Episode.Slug">
+        <a class="player__coverlink" href="@episodeUrl">
             <img class="player__cover" data-amplitude-song-info="cover_art_url" data-amplitude-main-song-info="true" src="@imageUrl" alt="@Model.Episode.Title">
         </a>
     }
@@ -42,7 +43,7 @@
                 </svg>
             </div>
             <div class="player__info">
-                <a asp-page="/Public/Episode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@Model.Episode.Slug">
+                <a href="@episodeUrl">
                     <div class="player__album" data-amplitude-song-info="album" data-amplitude-main-song-info="true"></div>
                     <h3 class="player__name" data-amplitude-song-info="name" data-amplitude-main-song-info="true"></h3>
                 </a>
