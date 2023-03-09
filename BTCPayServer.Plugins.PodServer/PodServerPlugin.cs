@@ -16,7 +16,7 @@ namespace BTCPayServer.Plugins.PodServer
     {
         public override IBTCPayServerPlugin.PluginDependency[] Dependencies { get; } = new[]
         {
-            new IBTCPayServerPlugin.PluginDependency { Identifier = nameof(BTCPayServer), Condition = ">=1.8.0" }
+            new IBTCPayServerPlugin.PluginDependency { Identifier = nameof(BTCPayServer), Condition = ">=1.8.2" }
         };
 
         public override void Execute(IServiceCollection services)
