@@ -22,7 +22,7 @@ public class PodServerPlugin : BaseBTCPayServerPlugin
 
     public override void Execute(IServiceCollection services)
     {
-        services.AddSingleton<IApp, PodServerApp>();
+        services.AddSingleton<AppBaseType, PodServerApp>();
         services.AddSingleton<IUIExtension>(new UIExtension("PodServerNavExtension", "header-nav"));
         services.AddSingleton<PodServerPluginDbContextFactory>();
         services.AddDbContext<PodServerPluginDbContext>((provider, o) =>
