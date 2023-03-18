@@ -4,6 +4,7 @@
 @model BTCPayServer.Plugins.PodServer.Pages.Podcasts.IndexModel
 
 @{
+    var store = PageContext.HttpContext.GetStoreData();
     ViewData.SetActivePage(PodServerNavPages.Podcasts, "PodServer");
 }
 
@@ -12,14 +13,13 @@
     <h2 class="my-1">@ViewData["Title"]</h2>
     @if (Model.IsReady)
     {
-        <a asp-page="./Create" class="btn btn-primary" role="button" id="CreatePodcast">
+        <a asp-area="" asp-controller="UIApps" asp-action="CreateApp" asp-route-storeId="@store.Id" asp-route-appType="@PodServerApp.AppType" class="btn btn-primary" role="button" id="CreatePodcast">
             Create a podcast
         </a>
     }
 </div>
 
 <partial name="_StatusMessage" />
-
 
 @if (!Model.IsReady)
 {
