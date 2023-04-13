@@ -1,15 +1,15 @@
-@page "/plugins/podserver/podcast/{podcastSlug}"
 @using BTCPayServer.Abstractions.Contracts
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using System.Globalization
+@using BTCPayServer.Abstractions.Services
 @using BTCPayServer.Plugins.PodServer.Data.Models
-@model PublicPodcastModel
+@model BTCPayServer.Plugins.PodServer.ViewModels.PublicPodcastViewModel
 @inject IFileService FileService
-
+@inject Safe Safe
 @{
     Layout = "_LayoutSimple";
     ViewData.SetActivePage(PodServerNavPages.Public, Model.Podcast.Title, Model.Podcast.PodcastId);
-    var imageUrl = string.IsNullOrEmpty(Model.Podcast.ImageFileId) ? null : await FileService.GetFileUrl(Request.GetAbsoluteRootUri(), Model.Podcast.ImageFileId);
+    var rootUri = Context.Request.GetAbsoluteRootUri();
+    var imageUrl = string.IsNullOrEmpty(Model.Podcast.ImageFileId) ? null : await FileService.GetFileUrl(rootUri, Model.Podcast.ImageFileId);
 }
 
 @section PageHeadContent {
@@ -25,17 +25,17 @@
     <div class="sticky-header d-flex flex-wrap align-items-center justify-content-between gap-3">
         <h1 class="mb-0">@ViewData["Title"]</h1>
         <div class="d-flex gap-3">
-            <a asp-controller="Feed" asp-action="Feed" asp-route-podcastSlug="@Model.Podcast.Slug" class="btn btn-secondary" role="button" id="Feed">Subscribe</a>
+            <a href="./feed" class="btn btn-secondary" role="button" id="Feed">Subscribe</a>
         </div>
     </div>
-    
+
     @if (imageUrl != null)
     {
         <img src="@imageUrl" alt="@Model.Podcast.Title" style="max-width: 200px;max-height: 200px;" class="d-block mb-3"/>
     }
-    
+
     @Html.Raw(Model.Podcast.Description)
-    
+
     @if (Model.LatestEpisode != null)
     {
         var player = new Player(Model.LatestEpisode, FileService);
@@ -46,24 +46,25 @@
     {
         <p id="PodcastEpisodes" class="text-secondary">There are no episodes yet.</p>
     }
-    
+
     @if (Model.MoreEpisodes != null && Model.MoreEpisodes.Any())
     {
         <h2 class="mt-5 mb-4">More Episodes</h2>
         <div class="episodes">
             @foreach (var episode in Model.MoreEpisodes)
             {
-                var coverUrl = string.IsNullOrEmpty(episode.ImageFileId) ? imageUrl : await FileService.GetFileUrl(Request.GetAbsoluteRootUri(), episode.ImageFileId);
+                var episodeUrl = $"./episode/{Safe.Raw(episode.Slug)}";
+                var coverUrl = string.IsNullOrEmpty(episode.ImageFileId) ? imageUrl : await FileService.GetFileUrl(rootUri, episode.ImageFileId);
                 <article id="Episode-@episode.EpisodeId" class="episode-item">
                     @if (coverUrl != null)
                     {
-                        <a asp-page="/Public/Episode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@episode.Slug" class="episode-coverlink">
+                        <a href="@episodeUrl" class="episode-coverlink">
                             <img src="@coverUrl" alt="@episode.Title" />
                         </a>
                     }
                     <div class="episode-content">
                         <h3 class="episode-title">
-                            <a asp-page="/Public/Episode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@episode.Slug" class="episode-link">@episode.Title</a>
+                            <a href="@episodeUrl" class="episode-link">@episode.Title</a>
                         </h3>
                         <div class="episode-meta">
                             <time class="episode-published" datetime="@episode.PublishedAt?.ToString("o", CultureInfo.InvariantCulture)">

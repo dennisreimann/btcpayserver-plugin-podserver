@@ -2,7 +2,7 @@
 @model BTCPayServer.Plugins.PodServer.Pages.Podcasts.CreateModel
 
 @{
-    ViewData.SetActivePage(PodServerNavPages.Podcast, "Create a new podcast");
+    ViewData.SetActivePage(PodServerNavPages.Podcast, "Create a new podcast", Model.AppId);
 }
 
 @section PodServerHead {
@@ -15,15 +15,19 @@
 }
 
 <form method="post">
+    @if (!string.IsNullOrEmpty(Model.AppId))
+    {
+        <input asp-for="AppId" type="hidden" />
+    }
     <div class="sticky-header-setup"></div>
     <div class="sticky-header d-flex flex-wrap align-items-center justify-content-between gap-3">
         <h2 class="mb-0">@ViewData["Title"]</h2>
         <div class="d-flex gap-3">
-            <button type="submit" class="btn btn-primary" id="Create">Create</button>   
+            <button type="submit" class="btn btn-primary" id="Create">Create</button>
         </div>
     </div>
-    
-    <partial name="_StatusMessage" />
+
+    <partial name="_StatusMessage"/>
 
     <div class="row">
         <div class="col-xl-10 col-xxl-constrain">
@@ -33,7 +37,7 @@
             }
             <div class="form-group">
                 <label asp-for="Podcast.Title" class="form-label" data-required></label>
-                <input asp-for="Podcast.Title" class="form-control" required autofocus />
+                <input asp-for="Podcast.Title" class="form-control" required autofocus/>
                 <span asp-validation-for="Podcast.Title" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -62,6 +66,10 @@
 
 <h3 class="mt-5 mb-4">Import existing RSS feed</h3>
 <form method="post" asp-page-handler="import" enctype="multipart/form-data">
+    @if (!string.IsNullOrEmpty(Model.AppId))
+    {
+        <input asp-for="AppId" type="hidden" />
+    }
     <div class="row">
         <div class="col-xl-10 col-xxl-constrain">
             <div class="form-group">

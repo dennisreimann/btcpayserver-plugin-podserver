@@ -7,30 +7,35 @@ using System.Threading.Tasks;
 using System.Xml;
 using BTCPayServer.Abstractions.Contracts;
 using BTCPayServer.Abstractions.Extensions;
+using BTCPayServer.Filters;
 using BTCPayServer.Plugins.PodServer.Data.Models;
 using BTCPayServer.Plugins.PodServer.Services.Podcasts;
+using BTCPayServer.Services.Apps;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BTCPayServer.Plugins.PodServer.Controllers;
 
-public class FeedController : Controller
+public class FeedController : PublicBaseController
 {
-    private readonly PodcastRepository _podcastRepository;
     private readonly IFileService _fileService;
 
-    public FeedController(PodcastRepository podcastRepository, IFileService fileService)
+    public FeedController(
+        AppService appService,
+        PodcastRepository podcastRepository,
+        IFileService fileService) : base(appService, podcastRepository)
     {
-        _podcastRepository = podcastRepository;
         _fileService = fileService;
     }
 
     // https://hamedfathi.me/a-professional-asp.net-core-rss/
     [ResponseCache(Duration = 1200)]
     [Produces("application/rss+xml")]
+    [HttpGet("/feed")]
     [HttpGet("/plugins/podserver/podcast/{podcastSlug}/feed")]
+    [DomainMappingConstraint(PodServerApp.AppType)]
     public async Task<IActionResult> Feed(string podcastSlug)
     {
-        var podcast = await _podcastRepository.GetPodcast(new PodcastsQuery
+        var podcast = await GetPodcast(new PodcastsQuery
         {
             Slug = podcastSlug,
             IncludePeople = true,
@@ -40,7 +45,7 @@ public class FeedController : Controller
         if (podcast == null)
             return NotFound();
 
-        var episodes = (await _podcastRepository.GetEpisodes(new EpisodesQuery
+        var episodes = (await PodcastRepository.GetEpisodes(new EpisodesQuery
         {
             PodcastId = podcast.PodcastId,
             OnlyPublished = true,
@@ -95,7 +100,7 @@ public class FeedController : Controller
             ? null
             : await _fileService.GetFileUrl(rootUri, podcast.ImageFileId);
         var podcastUrl = string.IsNullOrEmpty(podcast.Url)
-            ? Url.PageLink("/Public/Podcast", null, new { podcastSlug = podcast.Slug })
+            ? Url.ActionLink(nameof(PublicController.ViewPodcast), "Public", new { podcastSlug = podcast.Slug })
             : podcast.Url;
 
         xml.WriteStartElement("title");
@@ -115,7 +120,7 @@ public class FeedController : Controller
         await xml.WriteStartElementAsync("atom", "link", null);
         xml.WriteAttributeString("rel", "self");
         xml.WriteAttributeString("type", "application/rss+xml");
-        xml.WriteAttributeString("href", Url.ActionLink("Feed", "Feed", new { podcastSlug = podcast.Slug }));
+        xml.WriteAttributeString("href", Url.ActionLink(nameof(Feed), "Feed", new { podcastSlug = podcast.Slug }));
         await xml.WriteEndElementAsync();
 
         if (!string.IsNullOrEmpty(podcast.Owner))
@@ -169,7 +174,7 @@ public class FeedController : Controller
         var coverUrl = string.IsNullOrEmpty(episode.ImageFileId)
             ? null
             : await _fileService.GetFileUrl(rootUri, episode.ImageFileId);
-        var episodeUrl = Url.PageLink("/Public/Episode", null,
+        var episodeUrl = Url.ActionLink(nameof(PublicController.ViewEpisode), "Public",
             new { podcastSlug = podcast.Slug, episodeSlug = episode.Slug }, HttpContext.Request.Scheme);
 
         xml.WriteStartElement("item");

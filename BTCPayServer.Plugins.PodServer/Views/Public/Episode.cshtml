@@ -1,16 +1,14 @@
-@page "/plugins/podserver/podcast/{podcastSlug}/{episodeSlug}"
 @using BTCPayServer.Plugins.PodServer.Data.Models
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using BTCPayServer.Abstractions.Contracts
 @using System.Globalization
-@model PublicEpisodeModel
+@model BTCPayServer.Plugins.PodServer.ViewModels.PublicEpisodeViewModel
 @inject IFileService FileService
 
 @{
     Layout = "_LayoutSimple";
     ViewData.SetActivePage(PodServerNavPages.Public, $"{Model.Episode.Title} - {Model.Podcast.Title}", Model.Episode.EpisodeId);
-    
-    var rootUri = Request.GetAbsoluteRootUri();
+
+    var rootUri = Context.Request.GetAbsoluteRootUri();
     var enclosure = Model.Episode.MainEnclosure;
     var player = new Player(Model.Episode, FileService);
     var imageUrl = await player.GetImageUrl(rootUri);
@@ -48,18 +46,18 @@
     <div class="sticky-header d-flex flex-wrap align-items-center justify-content-between gap-3">
         <h1 class="mb-0">@Model.Episode.Title</h1>
         <div class="d-flex gap-3">
-            <a asp-page="/Public/Podcast" asp-route-podcastSlug="@Model.Podcast.Slug" class="btn btn-secondary">@Model.Podcast.Title</a>
-            <a asp-controller="Feed" asp-action="Feed" asp-route-podcastSlug="@Model.Podcast.Slug" class="btn btn-secondary" role="button" id="Feed">Subscribe</a>
+            <a href=".." class="btn btn-secondary">@Model.Podcast.Title</a>
+            <a href="../feed" class="btn btn-secondary" role="button" id="Feed">Subscribe</a>
         </div>
     </div>
-    
+
     @if (enclosure != null)
     {
         <partial name="PodServerPlayer" model="@player"/>
     }
-    
+
     @Html.Raw(Model.Episode.Description)
-    
+
     <dl class="row">
         <dt class="col-sm-3 col-xl-2">
             @Html.DisplayNameFor(model => model.Episode.PublishedAt)

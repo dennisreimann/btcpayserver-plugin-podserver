@@ -18,7 +18,7 @@
         <h2 class="mb-0">@ViewData["Title"]</h2>
         @if (Model.Episode.IsPublished)
         {
-            <a class="btn btn-secondary" asp-page="/Public/Episode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@Model.Episode.Slug" id="ViewEpisode" target="_blank">Public Page</a>
+            <a class="btn btn-secondary" asp-controller="Public" asp-action="ViewEpisode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@Model.Episode.Slug" id="ViewEpisode" target="_blank">Public Page</a>
         }
     </div>
     <partial name="_EpisodeSettingsNav" model="(Model.Episode.PodcastId, Model.Episode.EpisodeId)"/>
@@ -36,7 +36,7 @@ else if (!string.IsNullOrEmpty(Model.Episode.ImageFileId))
 }
 
 @Html.Raw(Model.Episode.Description)
-    
+
 <h3 class="mt-5 mb-3">Contributions</h3>
 
 @if (Model.Episode.Contributions.Any())
@@ -71,7 +71,7 @@ else
         }
         else
         {
-            <span>No publish data set yet</span>   
+            <span>No publish data set yet</span>
         }
     </dd>
     <dt class="col-sm-3 col-xl-2">
