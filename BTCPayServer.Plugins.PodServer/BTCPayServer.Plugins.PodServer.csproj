@@ -9,7 +9,7 @@
     <Product>PodServer</Product>
     <Description>Self-host your podcast and start Podcasting 2.0 like a pro.</Description>
     <Authors>d11n</Authors>
-    <Version>0.1.6</Version>
+    <Version>0.2.0</Version>
   </PropertyGroup>
 
   <!-- Plugin development properties -->
