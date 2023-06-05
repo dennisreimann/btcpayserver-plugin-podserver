@@ -116,6 +116,6 @@ public class CreateModel : BasePageModel
         var settings = appData.GetSettings<PodServerSettings>();
         settings.PodcastId = podcastId;
         appData.SetSettings(settings);
-        await _appService.UpdateOrCreateApp(appData);;
+        await _appService.UpdateOrCreateApp(appData);
     }
 }

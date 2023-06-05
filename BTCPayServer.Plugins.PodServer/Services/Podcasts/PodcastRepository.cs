@@ -30,7 +30,7 @@ public class PodcastRepository
         return podcasts.Select(podcast =>
         {
             var editor = podcast.Editors.FirstOrDefault(editor => query.UserId.Contains(editor.UserId));
-            if (query.UserId.Contains(podcast.OwnerId))
+            if (query.UserId != null && query.UserId.Contains(podcast.OwnerId))
             {
                 podcast.Role = EditorRole.Admin;
             }

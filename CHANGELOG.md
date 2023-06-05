@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [![Support this plugin](./docs/img/support.png)](lightning:LNURL1DP68GURN8GHJ7AMPD3KX2AR0VEEKZAR0WD5XJTNRDAKJ7TNHV4KXCTTTDEHHWM30D3H82UNVWQHKXUN0WAJX2ER9V9E8G6PN8QSKVTEZ)
 
-## [0.2.0] - 2023-04-13
+## [0.2.1]
+
+### Changed
+
+- Improve app integration.
+
+## [0.2.0]
 
 ### Added
 

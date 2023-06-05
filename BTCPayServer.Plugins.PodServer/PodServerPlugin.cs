@@ -32,7 +32,6 @@ public class PodServerPlugin : BaseBTCPayServerPlugin
         });
 
         services.AddSingleton<IPluginHookFilter, AuthorizationRequirementHandler>();
-
         services.AddAppServices();
         services.AddAppAuthorization();
     }

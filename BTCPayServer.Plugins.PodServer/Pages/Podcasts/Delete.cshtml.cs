@@ -1,9 +1,11 @@
+using System.Linq;
 using System.Threading.Tasks;
 using BTCPayServer.Abstractions.Constants;
 using BTCPayServer.Data;
 using BTCPayServer.Plugins.PodServer.Authentication;
 using BTCPayServer.Plugins.PodServer.Data.Models;
 using BTCPayServer.Plugins.PodServer.Services.Podcasts;
+using BTCPayServer.Services.Apps;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +15,15 @@ namespace BTCPayServer.Plugins.PodServer.Pages.Podcasts;
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.Cookie, Policy = PodServerPolicies.CanManagePodcast)]
 public class DeleteModel : BasePageModel
 {
+    private readonly AppService _appService;
+
     public Podcast Podcast { get; set; }
 
     public DeleteModel(UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository) : base(userManager, podcastRepository) { }
+        PodcastRepository podcastRepository,
+        AppService appService) : base(userManager, podcastRepository) {
+        _appService = appService;
+    }
 
     public async Task<IActionResult> OnGet(string podcastId)
     {
@@ -45,6 +52,15 @@ public class DeleteModel : BasePageModel
         if (Podcast == null)
             return NotFound();
 
+        // Delete associated app
+        var app = (await _appService.GetApps(PodServerApp.AppType)).FirstOrDefault(appData =>
+            appData.GetSettings<PodServerSettings>().PodcastId == Podcast.PodcastId);
+        if (app != null)
+        {
+            await _appService.DeleteApp(app);
+        }
+
+        // Delete the podcast
         await PodcastRepository.RemovePodcast(Podcast);
         TempData[WellKnownTempData.SuccessMessage] = "Podcast successfully deleted.";
 
