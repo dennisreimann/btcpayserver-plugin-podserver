@@ -6,19 +6,18 @@
 }
 
 <form method="post">
-    <div class="sticky-header-setup"></div>
     <div class="sticky-header mb-l">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
             <h2 class="mb-0">
                 <a asp-page="/Podcasts/Podcast" asp-route-podcastId="@Model.Person.PodcastId" class="unobtrusive-link">@ViewData["Title"]</a>
             </h2>
             <div class="d-flex gap-3">
-                <button type="submit" class="btn btn-primary" id="Save">Create</button>   
+                <button type="submit" class="btn btn-primary" id="Save">Create</button>
             </div>
         </div>
         <partial name="_PodcastSettingsNav" model="Model.Person.PodcastId" />
     </div>
-    
+
     <partial name="_StatusMessage" />
 
     <div class="row">

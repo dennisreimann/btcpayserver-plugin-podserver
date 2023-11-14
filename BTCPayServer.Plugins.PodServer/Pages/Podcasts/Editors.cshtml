@@ -7,12 +7,11 @@
 @model BTCPayServer.Plugins.PodServer.Pages.Podcasts.EditorsModel
 @{
     ViewData.SetActivePage(PodServerNavPages.Editors, "Editors", Model.Podcast.PodcastId);
-    var roleOptions = new SelectList(typeof(EditorRole).GetEnumNames().Select(o => 
-        new SelectListItem(typeof(EditorRole).DisplayName(o), o)), 
+    var roleOptions = new SelectList(typeof(EditorRole).GetEnumNames().Select(o =>
+        new SelectListItem(typeof(EditorRole).DisplayName(o), o)),
         nameof(SelectListItem.Value), nameof(SelectListItem.Text), Model.Editor?.Role);
 }
 
-<div class="sticky-header-setup"></div>
 <div class="sticky-header mb-l">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
         <h2 class="mb-0">
@@ -22,9 +21,9 @@
     </div>
     <partial name="_PodcastSettingsNav" model="Model.Podcast.PodcastId"/>
 </div>
-    
+
 <partial name="_StatusMessage"/>
-    
+
 <div class="row">
     <div class="col-xl-10 col-xxl-constrain">
         <p>Give other registered BTCPay Server users access to this podcast.</p>

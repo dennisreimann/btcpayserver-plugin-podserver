@@ -1,6 +1,5 @@
 @page "/plugins/podserver/podcasts/{podcastId}/seasons/edit/{seasonId?}"
 @using BTCPayServer.Abstractions.Models
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model BTCPayServer.Plugins.PodServer.Pages.Seasons.EditModel
 
 @{
@@ -9,7 +8,6 @@
 }
 
 <form method="post" enctype="multipart/form-data">
-    <div class="sticky-header-setup"></div>
     <div class="sticky-header mb-l">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
             <h2 class="mb-0">
@@ -21,7 +19,7 @@
         </div>
         <partial name="_PodcastSettingsNav" model="Model.Season.PodcastId" />
     </div>
-    
+
     <partial name="_StatusMessage" />
 
     <div class="row">
@@ -50,7 +48,7 @@
     <div class="d-flex gap-3">
         <a id="DeleteSeason" class="btn btn-outline-danger" asp-page="./Delete" asp-route-podcastId="@Model.Season.PodcastId" asp-route-seasonId="@Model.Season.SeasonId" data-bs-toggle="modal" data-bs-target="#ConfirmModal" data-description="The season <strong>@Model.Season.Name</strong> will be deleted." data-confirm-input="DELETE">Delete this season</a>
     </div>
-    
+
     <partial name="_Confirm" model="@(new ConfirmModel("Delete season", $"The season \"{Model.Season.Name}\" will be deleted. Are you sure?", "Delete"))" />
 }
 

@@ -43,6 +43,7 @@ public class Podcast
     [Required]
     public string Language { get; set; }
 
+    [Required]
     public string Category { get; set; }
 
     public string ImageFileId { get; set; }

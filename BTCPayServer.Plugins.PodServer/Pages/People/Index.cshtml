@@ -1,7 +1,6 @@
 ﻿@page "/plugins/podserver/podcasts/{podcastId}/people"
 @using BTCPayServer.Abstractions.Contracts
 @using BTCPayServer.Plugins.PodServer.Authentication
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model BTCPayServer.Plugins.PodServer.Pages.People.IndexModel
 @inject IFileService FileService
 
@@ -9,7 +8,6 @@
     ViewData.SetActivePage(PodServerNavPages.People, Model.Podcast.Title, Model.Podcast.PodcastId);
 }
 
-<div class="sticky-header-setup"></div>
 <div class="sticky-header mb-l">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3  mb-2 mb-lg-4">
         <h2 class="mb-0">@ViewData["Title"]</h2>
@@ -19,7 +17,7 @@
 </div>
 
 <partial name="_StatusMessage" />
-    
+
 <h3 class="mb-3">People</h3>
 
 @if (Model.People.Any())

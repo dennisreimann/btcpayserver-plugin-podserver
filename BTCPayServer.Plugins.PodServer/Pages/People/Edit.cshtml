@@ -12,7 +12,6 @@
 }
 
 <form method="post" enctype="multipart/form-data">
-    <div class="sticky-header-setup"></div>
     <div class="sticky-header mb-l">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
             <h2 class="mb-0">
@@ -24,7 +23,7 @@
         </div>
         <partial name="_PodcastSettingsNav" model="Model.Person.PodcastId" />
     </div>
-    
+
     <partial name="_StatusMessage" />
 
     <div class="row">
@@ -52,23 +51,23 @@
                 <label for="ImageFile" class="btn btn-secondary w-150px">@(string.IsNullOrEmpty(Model.Person.ImageFileId) ? "Upload" : "Update")</label>
                 <input id="ImageFile" name="ImageFile" type="file" class="form-control d-none">
             </div>
-            
+
             <h3 class="mt-5 mb-3">Value information</h3>
-            
+
             <input asp-for="Person.ValueRecipient.Type" value="@ValueRecipientType.Node" type="hidden">
             <div class="form-group mb-0">
                 <label asp-for="Person.ValueRecipient.Address" class="form-label" data-required>Node PubKey</label>
                 <input asp-for="Person.ValueRecipient.Address" class="form-control">
                 <span asp-validation-for="Person.ValueRecipient.Address" class="text-danger"></span>
             </div>
-            
+
             @*<div id="ValueTypeTablist" class="nav btcpay-pills align-items-center justify-content-start mt-4 mb-3" role="tablist">
                 <input asp-for="Person.ValueRecipient.Type" value="@ValueRecipientType.Node" type="radio" id="ValueRecipientType-@ValueRecipientType.Node" data-bs-toggle="pill" data-bs-target="#ValueRecipientNode" role="tab" aria-controls="ValueRecipientNode" aria-selected="@(Model.Person.ValueRecipient.Type == ValueRecipientType.Node ? "true" : "false")">
                 <label asp-for="Person.ValueRecipient.Type" for="@($"ValueRecipientType-{ValueRecipientType.Node}")">Own node</label>
-                
+
                 <input asp-for="Person.ValueRecipient.Type" value="@ValueRecipientType.LNbank" type="radio" id="ValueRecipientType-@ValueRecipientType.LNbank" data-bs-toggle="pill" data-bs-target="#ValueRecipientLNbank" role="tab" aria-controls="ValueRecipientLNbank" aria-selected="@(Model.Person.ValueRecipient.Type == ValueRecipientType.LNbank ? "true" : "false")">
                 <label asp-for="Person.ValueRecipient.Type" for="@($"ValueRecipientType-{ValueRecipientType.LNbank}")">LNbank wallet</label>
-        
+
                 <vc:ui-extension-point location="ln-payment-method-setup-tabhead" model="@Model"/>
             </div>
             <div id="ValueRecipientTypeTabs" class="tab-content text-start">
@@ -87,7 +86,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <script>
                 const canUseLNbank = document.getElementById("Nav-LNbank") != null;
                 if (!canUseLNbank) {
