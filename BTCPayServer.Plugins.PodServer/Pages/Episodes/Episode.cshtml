@@ -17,7 +17,7 @@
         <h2 class="mb-0">@ViewData["Title"]</h2>
         @if (Model.Episode.IsPublished)
         {
-            <a class="btn btn-secondary" asp-controller="Public" asp-action="ViewEpisode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@Model.Episode.Slug" id="ViewEpisode" target="_blank">Public Page</a>
+            <a class="btn btn-secondary" asp-controller="Public" asp-action="Episode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@Model.Episode.Slug" id="ViewEpisode" target="_blank">Public Page</a>
         }
     </div>
     <partial name="_EpisodeSettingsNav" model="(Model.Episode.PodcastId, Model.Episode.EpisodeId)"/>

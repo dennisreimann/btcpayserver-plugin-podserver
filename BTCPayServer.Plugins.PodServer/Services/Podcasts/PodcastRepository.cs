@@ -82,9 +82,9 @@ public class PodcastRepository
             queryable = queryable.Where(p => p.PodcastId == query.PodcastId);
         }
 
-        if (!string.IsNullOrEmpty(query.Slug))
+        if (!string.IsNullOrEmpty(query.PodcastSlug))
         {
-            queryable = queryable.Where(p => p.Slug == query.Slug);
+            queryable = queryable.Where(p => p.Slug == query.PodcastSlug);
         }
 
         if (query.IncludeEpisodes)
@@ -176,6 +176,13 @@ public class PodcastRepository
 
             queryable = queryable.Where(e => e.PodcastId == query.PodcastId);
         }
+        if (!string.IsNullOrEmpty(query.PodcastSlug))
+        {
+            query.IncludePodcast = true;
+
+            queryable = queryable.Include(e => e.Podcast)
+                .Where(e => e.Podcast.Slug == query.PodcastSlug);
+        }
 
         if (query.OnlyPublished)
         {
@@ -194,9 +201,9 @@ public class PodcastRepository
             queryable = queryable.Where(e => e.EpisodeId == query.EpisodeId);
         }
 
-        if (!string.IsNullOrEmpty(query.Slug))
+        if (!string.IsNullOrEmpty(query.EpisodeSlug))
         {
-            queryable = queryable.Where(e => e.Slug == query.Slug);
+            queryable = queryable.Where(e => e.Slug == query.EpisodeSlug);
         }
 
         if (!string.IsNullOrEmpty(query.SeasonId))

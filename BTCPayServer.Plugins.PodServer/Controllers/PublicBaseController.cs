@@ -10,21 +10,21 @@ namespace BTCPayServer.Plugins.PodServer.Controllers;
 [AllowAnonymous]
 public class PublicBaseController : Controller
 {
-    private readonly AppService _appService;
+    protected readonly AppService AppService;
     protected readonly PodcastRepository PodcastRepository;
 
     public PublicBaseController(
         AppService appService,
         PodcastRepository podcastRepository)
     {
-        _appService = appService;
+        AppService = appService;
         PodcastRepository = podcastRepository;
     }
 
     protected async Task<Podcast> GetPodcast(PodcastsQuery query)
     {
         var appId = (string)ControllerContext.RouteData.Values["appId"];
-        if (!string.IsNullOrEmpty(query.Slug))
+        if (!string.IsNullOrEmpty(query.PodcastSlug))
             return await PodcastRepository.GetPodcast(query);
         if (!string.IsNullOrEmpty(appId))
             return await PodcastForApp(appId, query);
@@ -33,10 +33,10 @@ public class PublicBaseController : Controller
 
     private async Task<Podcast> PodcastForApp(string appId, PodcastsQuery query)
     {
-        var app = await _appService.GetApp(appId, PodServerApp.AppType);
+        var app = await AppService.GetApp(appId, PodServerApp.AppType);
         var config = app?.GetSettings<PodServerSettings>();
         if (string.IsNullOrEmpty(config?.PodcastId)) return null;
-        query.Slug = null; // ensure slug isn't set
+        query.PodcastSlug = null; // ensure slug isn't set
         query.PodcastId = config.PodcastId;
         return await PodcastRepository.GetPodcast(query);
     }

@@ -27,21 +27,36 @@ public class FeedController : PublicBaseController
         _fileService = fileService;
     }
 
-    // https://hamedfathi.me/a-professional-asp.net-core-rss/
+    [ResponseCache(Duration = 1200)]
+    [Produces("application/rss+xml")]
+    [HttpGet("/plugins/podserver/podcast/{podcastSlug}/feed")]
+    public async Task<IActionResult> Feed(string podcastSlug)
+    {
+        return await FeedResult(new PodcastsQuery { PodcastSlug = podcastSlug });
+    }
+
     [ResponseCache(Duration = 1200)]
     [Produces("application/rss+xml")]
     [HttpGet("/feed")]
-    [HttpGet("/plugins/podserver/podcast/{podcastSlug}/feed")]
+    [HttpGet("/apps/{appId}/podcast/feed")]
     [DomainMappingConstraint(PodServerApp.AppType)]
-    public async Task<IActionResult> Feed(string podcastSlug)
+    public async Task<IActionResult> FeedApp(string appId)
     {
-        var podcast = await GetPodcast(new PodcastsQuery
-        {
-            Slug = podcastSlug,
-            IncludePeople = true,
-            IncludeSeasons = true,
-            IncludeContributions = true
-        });
+        var app = await AppService.GetApp(appId, PodServerApp.AppType);
+        if (app == null) return NotFound();
+
+        var settings = app.GetSettings<PodServerSettings>();
+        return await FeedResult(new PodcastsQuery { PodcastId = settings.PodcastId });
+    }
+
+    // https://hamedfathi.me/a-professional-asp.net-core-rss/
+    private async Task<IActionResult> FeedResult(PodcastsQuery podcastsQuery)
+    {
+        podcastsQuery.IncludePeople = true;
+        podcastsQuery.IncludeSeasons = true;
+        podcastsQuery.IncludeContributions = true;
+
+        var podcast = await GetPodcast(podcastsQuery);
         if (podcast == null)
             return NotFound();
 
@@ -100,7 +115,7 @@ public class FeedController : PublicBaseController
             ? null
             : await _fileService.GetFileUrl(rootUri, podcast.ImageFileId);
         var podcastUrl = string.IsNullOrEmpty(podcast.Url)
-            ? Url.ActionLink(nameof(PublicController.ViewPodcast), "Public", new { podcastSlug = podcast.Slug })
+            ? Url.ActionLink(nameof(PublicController.Podcast), nameof(PublicController).TrimEnd("Controller", StringComparison.InvariantCulture), new { podcastSlug = podcast.Slug })
             : podcast.Url;
 
         xml.WriteStartElement("title");
@@ -174,7 +189,7 @@ public class FeedController : PublicBaseController
         var coverUrl = string.IsNullOrEmpty(episode.ImageFileId)
             ? null
             : await _fileService.GetFileUrl(rootUri, episode.ImageFileId);
-        var episodeUrl = Url.ActionLink(nameof(PublicController.ViewEpisode), "Public",
+        var episodeUrl = Url.ActionLink(nameof(PublicController.Episode), nameof(PublicController).TrimEnd("Controller", StringComparison.InvariantCulture),
             new { podcastSlug = podcast.Slug, episodeSlug = episode.Slug }, HttpContext.Request.Scheme);
 
         xml.WriteStartElement("item");

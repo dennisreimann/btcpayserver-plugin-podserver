@@ -4,7 +4,7 @@ public class PodcastsQuery
 {
     public string UserId { get; set; }
     public string PodcastId { get; set; }
-    public string Slug { get; set; }
+    public string PodcastSlug { get; set; }
     public bool IncludeEpisodes { get; set; }
     public bool IncludeSeasons { get; set; }
     public bool IncludePeople { get; set; }

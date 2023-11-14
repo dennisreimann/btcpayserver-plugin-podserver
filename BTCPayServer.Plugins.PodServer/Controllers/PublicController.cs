@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BTCPayServer.Filters;
-using BTCPayServer.Plugins.PodServer.Data.Models;
 using BTCPayServer.Plugins.PodServer.Services.Podcasts;
 using BTCPayServer.Plugins.PodServer.ViewModels;
 using BTCPayServer.Services.Apps;
@@ -14,22 +13,32 @@ namespace BTCPayServer.Plugins.PodServer.Controllers;
 [AutoValidateAntiforgeryToken]
 public class PublicController : PublicBaseController
 {
-    public PublicController(
-        AppService appService,
-        PodcastRepository podcastRepository) : base(appService, podcastRepository) { }
+    public PublicController(AppService appService, PodcastRepository podcastRepository) : base(appService, podcastRepository) { }
+
+    [HttpGet("/plugins/podserver/podcast/{podcastSlug}")]
+    public async Task<IActionResult> Podcast(string podcastSlug)
+    {
+        return await PodcastResult(new PodcastsQuery { PodcastSlug = podcastSlug });
+    }
 
     [HttpGet("/")]
-    [HttpGet("/plugins/podserver/podcast/{podcastSlug}")]
-    [XFrameOptions(XFrameOptionsAttribute.XFrameOptions.Unset)]
+    [HttpGet("/apps/{appId}/podcast")]
     [DomainMappingConstraint(PodServerApp.AppType)]
-    public async Task<IActionResult> ViewPodcast(string podcastSlug)
+    public async Task<IActionResult> PodcastApp(string appId)
     {
-        var podcast = await GetPodcast(new PodcastsQuery { Slug = podcastSlug });
-        if (podcast == null)
-            return NotFound();
+        var app = await AppService.GetApp(appId, PodServerApp.AppType);
+        if (app == null) return NotFound();
+
+        var settings = app.GetSettings<PodServerSettings>();
+        return await PodcastResult(new PodcastsQuery { PodcastId = settings.PodcastId });
+    }
+
+    private async Task<IActionResult> PodcastResult(PodcastsQuery podcastsQuery)
+    {
+        var podcast = await GetPodcast(podcastsQuery);
+        if (podcast == null) return NotFound();
 
         var vm = new PublicPodcastViewModel { Podcast = podcast };
-
         var episodes = (await PodcastRepository.GetEpisodes(new EpisodesQuery
         {
             PodcastId = podcast.PodcastId,
@@ -45,30 +54,39 @@ public class PublicController : PublicBaseController
         return View("Podcast", vm);
     }
 
-    [HttpGet("/episode/{episodeSlug}")]
     [HttpGet("/plugins/podserver/podcast/{podcastSlug}/episode/{episodeSlug}")]
-    [XFrameOptions(XFrameOptionsAttribute.XFrameOptions.Unset)]
-    public async Task<IActionResult> ViewEpisode(string podcastSlug, string episodeSlug)
+    public async Task<IActionResult> Episode(string podcastSlug, string episodeSlug)
     {
-        var episode = await PodcastRepository.GetEpisode(new EpisodesQuery
-        {
-            Slug = episodeSlug,
-            IncludePodcast = true,
-            IncludeContributions = true,
-            IncludeEnclosures = true,
-            IncludeSeason = true
-        });
+        return await EpisodeResult(new EpisodesQuery { PodcastSlug = podcastSlug, EpisodeSlug = episodeSlug });
+    }
 
-        if (!episode.IsPublished)
-            return NotFound();
+    [HttpGet("/episode/{episodeSlug}")]
+    [HttpGet("/apps/{appId}/podcast/episode/{episodeSlug}")]
+    [DomainMappingConstraint(PodServerApp.AppType)]
+    public async Task<IActionResult> EpisodeApp(string appId, string episodeSlug)
+    {
+        var app = await AppService.GetApp(appId, PodServerApp.AppType);
+        if (app == null) return NotFound();
 
-        var podcast = episode.Podcast;
-        if (!string.IsNullOrEmpty(podcastSlug) && !podcast.Slug.Equals(podcastSlug))
+        var settings = app.GetSettings<PodServerSettings>();
+        return await EpisodeResult(new EpisodesQuery { PodcastId = settings.PodcastId, EpisodeSlug = episodeSlug });
+    }
+
+    private async Task<IActionResult> EpisodeResult(EpisodesQuery episodesQuery)
+    {
+        episodesQuery.IncludePodcast = true;
+        episodesQuery.IncludeContributions = true;
+        episodesQuery.IncludeEnclosures = true;
+        episodesQuery.IncludeSeason = true;
+        episodesQuery.OnlyPublished = true;
+
+        var episode = await PodcastRepository.GetEpisode(episodesQuery);
+        if (episode is not { IsPublished: true })
             return NotFound();
 
         var vm = new PublicEpisodeViewModel
         {
-            Podcast = podcast,
+            Podcast = episode.Podcast,
             Episode = episode
         };
 

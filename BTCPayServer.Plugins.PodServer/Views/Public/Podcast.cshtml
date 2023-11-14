@@ -24,7 +24,7 @@
     <div class="sticky-header d-flex flex-wrap align-items-center justify-content-between gap-3">
         <h1 class="mb-0">@ViewData["Title"]</h1>
         <div class="d-flex gap-3">
-            <a href="./feed" class="btn btn-secondary" role="button" id="Feed">Subscribe</a>
+            <a asp-controller="Feed" asp-action="Feed" asp-route-podcastSlug="@Model.Podcast.Slug" class="btn btn-secondary" role="button" id="Feed">Subscribe</a>
         </div>
     </div>
 

@@ -42,7 +42,7 @@ public class PodServerApp : AppBaseType
     {
         var podcast = await PodcastForApp(app);
         return podcast != null
-            ? _linkGenerator.GetPathByAction(nameof(PublicController.ViewPodcast), "Public", new { podcastSlug = podcast.Slug }, _options.RootPath)
+            ? _linkGenerator.GetPathByAction(nameof(PublicController.Podcast), nameof(PublicController).TrimEnd("Controller", StringComparison.InvariantCulture), new { podcastSlug = podcast.Slug }, _options.RootPath)
             : null;
     }
 
