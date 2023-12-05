@@ -56,7 +56,7 @@ public class PodServerApp : AppBaseType
 
     public override Task<object> GetInfo(AppData app)
     {
-        throw new NotImplementedException();
+        return Task.FromResult<object>(null);
     }
 
     public override Task SetDefaultSettings(AppData appData, string defaultCurrency)

@@ -12,31 +12,16 @@ using Microsoft.Extensions.Logging;
 
 namespace BTCPayServer.Plugins.PodServer.Services.Imports;
 
-public class FeedImporter
+public class FeedImporter(
+    ILogger<FeedImporter> logger,
+    IFileService fileService,
+    ImportRepository importRepository,
+    PodcastRepository podcastRepository,
+    ITaskQueue taskQueue)
 {
-    private readonly ILogger<FeedImporter> _logger;
-    private readonly IFileService _fileService;
-    private readonly ImportRepository _importRepository;
-    private readonly PodcastRepository _podcastRepository;
-    private readonly ITaskQueue _taskQueue;
-
-    public FeedImporter(
-        ILogger<FeedImporter> logger,
-        IFileService fileService,
-        ImportRepository importRepository,
-        PodcastRepository podcastRepository,
-        ITaskQueue taskQueue)
-    {
-        _logger = logger;
-        _fileService = fileService;
-        _importRepository = importRepository;
-        _podcastRepository = podcastRepository;
-        _taskQueue = taskQueue;
-    }
-
     public async Task<Podcast> CreatePodcast(string rss, string userId)
     {
-        (XmlNode channel, _) = GetChannel(rss);
+        var (channel, _) = GetChannel(rss);
 
         var title = channel["title"]?.InnerText;
         var description = channel["description"]?.InnerText;
@@ -51,7 +36,7 @@ public class FeedImporter
         IStoredFile imageFile = null;
         if (!string.IsNullOrEmpty(imageUrl))
         {
-            imageFile = await _fileService.AddFile(new Uri(imageUrl), userId);
+            imageFile = await fileService.AddFile(new Uri(imageUrl), userId);
         }
 
         var podcast = new Podcast
@@ -74,11 +59,11 @@ public class FeedImporter
         }
 
         // Create podcast and import job
-        await _podcastRepository.AddOrUpdatePodcast(podcast);
-        await _podcastRepository.AddOrUpdateEditor(podcast.PodcastId, userId, EditorRole.Admin);
+        await podcastRepository.AddOrUpdatePodcast(podcast);
+        await podcastRepository.AddOrUpdateEditor(podcast.PodcastId, userId, EditorRole.Admin);
 
-        var import = await _importRepository.CreateImport(rss, podcast.PodcastId, userId);
-        await _taskQueue.QueueAsync(cancellationToken => Import(import.ImportId, cancellationToken));
+        var import = await importRepository.CreateImport(rss, podcast.PodcastId, userId);
+        await taskQueue.QueueAsync(cancellationToken => Import(import.ImportId, cancellationToken));
         //await Import(import.ImportId, new CancellationToken());
 
         return podcast;
@@ -86,14 +71,14 @@ public class FeedImporter
 
     public async ValueTask Import(string importId, CancellationToken cancellationToken)
     {
-        var import = await _importRepository.GetImport(importId);
+        var import = await importRepository.GetImport(importId);
 
         if (import.Status != ImportStatus.Created)
         {
             throw new Exception($"Unexpected import status: {import.Status}");
         }
 
-        var podcast = await _podcastRepository.GetPodcast(new PodcastsQuery
+        var podcast = await podcastRepository.GetPodcast(new PodcastsQuery
         {
             PodcastId = import.PodcastId,
             IncludeEpisodes = true,
@@ -103,8 +88,8 @@ public class FeedImporter
 
         var log = $"New import: {DateTime.UtcNow}\n";
         var status = ImportStatus.Running;
-        await _importRepository.UpdateStatus(import, status, log);
-        _logger.LogInformation("Starting import for podcast {Id} ({Title})", podcast.PodcastId, podcast.Title);
+        await importRepository.UpdateStatus(import, status, log);
+        logger.LogInformation("Starting import for podcast {Id} ({Title})", podcast.PodcastId, podcast.Title);
 
         while (!cancellationToken.IsCancellationRequested && status == ImportStatus.Running)
         {
@@ -123,7 +108,7 @@ public class FeedImporter
                         var person = await GetPersonByPersonTag(elem, podcast.PodcastId, import.UserId);
                         var isNew = string.IsNullOrEmpty(person.PersonId);
                         if (isNew)
-                            await _podcastRepository.AddOrUpdatePerson(person);
+                            await podcastRepository.AddOrUpdatePerson(person);
                         log += $"channel/podcast:person -> {(isNew ? "Added" : "Existed")}: '{person.Name}'\n";
                     }
                 }
@@ -144,13 +129,13 @@ public class FeedImporter
 
                         var isNew = string.IsNullOrEmpty(person.PersonId);
                         if (isNew)
-                            await _podcastRepository.AddOrUpdatePerson(person);
+                            await podcastRepository.AddOrUpdatePerson(person);
                         log += $"channel/podcast:value/podcast:valueRecipient -> {(isNew ? "Added" : "Existed")}: Person '{person.Name}'\n";
 
                         var contribution = await GetContributionByValueRecipientTag(elem, podcast.PodcastId, null, person.PersonId);
                         var isNewC = string.IsNullOrEmpty(contribution.ContributionId);
                         if (isNewC)
-                            await _podcastRepository.AddOrUpdateContribution(contribution);
+                            await podcastRepository.AddOrUpdateContribution(contribution);
                         log += $"channel/podcast:value/podcast:valueRecipient -> {(isNewC ? "Added" : "Existed")}: Contribution by '{person.Name}' with split '{contribution.Split}'\n";
                     }
                 }
@@ -165,7 +150,7 @@ public class FeedImporter
                         var season = await GetSeasonByTag(elem, podcast.PodcastId);
                         var isNew = string.IsNullOrEmpty(season.SeasonId);
                         if (isNew)
-                            await _podcastRepository.AddOrUpdateSeason(season);
+                            await podcastRepository.AddOrUpdateSeason(season);
                         log += $"channel/itunes|podcast:season -> {(isNew ? "Added" : "Existed")}: Season '{season.Number}'\n";
                     }
                 }
@@ -180,7 +165,7 @@ public class FeedImporter
                         var episode = await GetEpisodeByItemTag(elem, podcast.PodcastId, import.UserId);
                         var isNew = string.IsNullOrEmpty(episode.EpisodeId);
                         if (isNew)
-                            await _podcastRepository.AddOrUpdateEpisode(episode);
+                            await podcastRepository.AddOrUpdateEpisode(episode);
                         log += $"channel/item({episode.ImportGuid}) -> {(isNew ? "Added" : "Existed")}: Episode '{episode.Title}'\n";
 
                         // Value info
@@ -199,13 +184,13 @@ public class FeedImporter
 
                                 var isNewP = string.IsNullOrEmpty(person.PersonId);
                                 if (isNewP)
-                                    await _podcastRepository.AddOrUpdatePerson(person);
+                                    await podcastRepository.AddOrUpdatePerson(person);
                                 log += $"channel/item({episode.ImportGuid})/podcast:value/podcast:valueRecipient -> {(isNewP ? "Added" : "Existed")}: Person '{person.Name}'\n";
 
                                 var contribution = await GetContributionByValueRecipientTag(el, podcast.PodcastId, episode.EpisodeId, person.PersonId);
                                 var isNewC = string.IsNullOrEmpty(contribution.ContributionId);
                                 if (isNewC)
-                                    await _podcastRepository.AddOrUpdateContribution(contribution);
+                                    await podcastRepository.AddOrUpdateContribution(contribution);
                                 log += $"channel/item({episode.ImportGuid})/podcast:value/podcast:valueRecipient -> {(isNewC ? "Added" : "Existed")}: Contribution by '{person.Name}' with split '{contribution.Split}'\n";
                             }
                         }
@@ -218,7 +203,7 @@ public class FeedImporter
             catch (Exception exception)
             {
                 log += $"Error: {exception.Message}";
-                _logger.LogError(exception, "Error importing podcast {Id} ({Title})", podcast.PodcastId, podcast.Title);
+                logger.LogError(exception, "Error importing podcast {Id} ({Title})", podcast.PodcastId, podcast.Title);
 
                 status = ImportStatus.Failed;
             }
@@ -229,8 +214,8 @@ public class FeedImporter
             status = ImportStatus.Cancelled;
         }
 
-        _logger.LogInformation("{Status} import for podcast {Id} ({Title})", status, podcast.PodcastId, podcast.Title);
-        await _importRepository.UpdateStatus(import, status, $"{log}\n---\n");
+        logger.LogInformation("{Status} import for podcast {Id} ({Title})", status, podcast.PodcastId, podcast.Title);
+        await importRepository.UpdateStatus(import, status, $"{log}\n---\n");
     }
 
     private static (XmlNode, XmlNamespaceManager) GetChannel(string rss)
@@ -256,7 +241,7 @@ public class FeedImporter
         var name = elem.GetAttribute("name");
         var number = int.Parse(elem.InnerText);
         var query = new SeasonsQuery { Number = number, PodcastId = podcastId };
-        return await _podcastRepository.GetSeason(query) ?? new Season
+        return await podcastRepository.GetSeason(query) ?? new Season
         {
             Name = name,
             Number = number,
@@ -271,14 +256,14 @@ public class FeedImporter
         var name = elem.InnerText;
 
         var query = new PeopleQuery { Name = name, PodcastId = podcastId };
-        var person = await _podcastRepository.GetPerson(query);
+        var person = await podcastRepository.GetPerson(query);
         if (person != null)
             return person;
 
         IStoredFile imageFile = null;
         if (!string.IsNullOrEmpty(imageUrl))
         {
-            imageFile = await _fileService.AddFile(new Uri(imageUrl), userId);
+            imageFile = await fileService.AddFile(new Uri(imageUrl), userId);
         }
 
         return new Person
@@ -298,7 +283,7 @@ public class FeedImporter
 
         var name = elem.GetAttribute("name");
         var query = new PeopleQuery { Name = name, PodcastId = podcastId };
-        return await _podcastRepository.GetPerson(query) ?? new Person
+        return await podcastRepository.GetPerson(query) ?? new Person
         {
             Name = name,
             PodcastId = podcastId,
@@ -321,7 +306,7 @@ public class FeedImporter
             PersonId = personId,
             PodcastOnly = string.IsNullOrEmpty(episodeId)
         };
-        return await _podcastRepository.GetContribution(query) ?? new Contribution
+        return await podcastRepository.GetContribution(query) ?? new Contribution
         {
             Split = int.Parse(elem.GetAttribute("split")),
             PodcastId = podcastId,
@@ -334,7 +319,7 @@ public class FeedImporter
     {
         var guid = item["guid"]?.InnerText;
         var query = new EpisodesQuery { ImportGuid = guid, PodcastId = podcastId };
-        var episode = await _podcastRepository.GetEpisode(query);
+        var episode = await podcastRepository.GetEpisode(query);
         if (episode != null)
             return episode;
 
@@ -342,7 +327,7 @@ public class FeedImporter
         Enclosure enclosure = null;
         if (item["enclosure"] != null && !string.IsNullOrEmpty(item["enclosure"].GetAttribute("url")))
         {
-            IStoredFile enclosureFile = await _fileService.AddFile(new Uri(item["enclosure"].GetAttribute("url")), userId);
+            IStoredFile enclosureFile = await fileService.AddFile(new Uri(item["enclosure"].GetAttribute("url")), userId);
             enclosure = new Enclosure
             {
                 FileId = enclosureFile.Id,
@@ -357,7 +342,7 @@ public class FeedImporter
         IStoredFile imageFile = null;
         if (!string.IsNullOrEmpty(imageUrl))
         {
-            imageFile = await _fileService.AddFile(new Uri(imageUrl), userId);
+            imageFile = await fileService.AddFile(new Uri(imageUrl), userId);
         }
 
         // Season

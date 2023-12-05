@@ -18,16 +18,13 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<PodServerP
         // builder.UseSqlite("Data Source=temp.db");
         builder.UseNpgsql("User ID=postgres;Host=127.0.0.1;Port=39372;Database=designtimebtcpay");
 
-        return new PodServerPluginDbContext(builder.Options, true);
+        return new PodServerPluginDbContext(builder.Options);
     }
 }
 
-public class PodServerPluginDbContextFactory : BaseDbContextFactory<PodServerPluginDbContext>
+public class PodServerPluginDbContextFactory(IOptions<DatabaseOptions> options)
+    : BaseDbContextFactory<PodServerPluginDbContext>(options, "BTCPayServer.Plugins.PodServer")
 {
-    public PodServerPluginDbContextFactory(IOptions<DatabaseOptions> options) : base(options, "BTCPayServer.Plugins.PodServer")
-    {
-    }
-
     public override PodServerPluginDbContext CreateContext()
     {
         var builder = new DbContextOptionsBuilder<PodServerPluginDbContext>();

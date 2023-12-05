@@ -1,24 +1,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BTCPayServer.Abstractions.Contracts;
 using BTCPayServer.Plugins.PodServer.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace BTCPayServer.Plugins.PodServer.Services.Imports;
 
-public class ImportRepository
+public class ImportRepository(PodServerPluginDbContextFactory dbContextFactory)
 {
-    private readonly PodServerPluginDbContextFactory _dbContextFactory;
-
-    public ImportRepository(PodServerPluginDbContextFactory dbContextFactory)
-    {
-        _dbContextFactory = dbContextFactory;
-    }
-
     public async Task<IEnumerable<Import>> GetUnfinishedImports()
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         return await dbContext.Imports
             .Where(i => i.Status != ImportStatus.Succeeded && i.Status != ImportStatus.Failed)
             .ToListAsync();
@@ -26,7 +18,7 @@ public class ImportRepository
 
     public async Task<Import> GetImport(string importId)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         return await dbContext.Imports
             .Where(i => i.ImportId == importId)
             .FirstOrDefaultAsync();
@@ -40,7 +32,7 @@ public class ImportRepository
 
     public async Task UpdateStatus(Import import, ImportStatus status, string log = null)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
 
         import.Status = status;
         if (!string.IsNullOrEmpty(log))
@@ -52,14 +44,14 @@ public class ImportRepository
 
     public async Task RemoveImport(Import import)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         dbContext.Imports.Remove(import);
         await dbContext.SaveChangesAsync();
     }
 
     private async Task<Import> AddOrUpdateImport(Import import)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
 
         EntityEntry entry;
         if (string.IsNullOrEmpty(import.ImportId))

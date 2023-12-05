@@ -10,32 +10,24 @@ using Microsoft.AspNetCore.Routing;
 
 namespace BTCPayServer.Plugins.PodServer.Hooks;
 
-public class AuthorizationRequirementHandler : IPluginHookFilter
+public class AuthorizationRequirementHandler(
+    UserManager<ApplicationUser> userManager,
+    PodcastRepository podcastRepository)
+    : IPluginHookFilter
 {
     public string Hook { get; } = "handle-authorization-requirement";
-
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly PodcastRepository _podcastRepository;
-
-    public AuthorizationRequirementHandler(
-        UserManager<ApplicationUser> userManager,
-        PodcastRepository podcastRepository)
-    {
-        _userManager = userManager;
-        _podcastRepository = podcastRepository;
-    }
 
     public async Task<object> Execute(object args)
     {
         var obj = (AuthorizationFilterHandle)args;
         var httpContext = obj.HttpContext;
-        var userId = _userManager.GetUserId(obj.Context.User);
+        var userId = userManager.GetUserId(obj.Context.User);
         Podcast podcast = null;
 
         var routeData = httpContext.GetRouteData();
         if (routeData.Values.TryGetValue("podcastId", out var vPodcastId) && vPodcastId is string podcastId)
         {
-            podcast = await _podcastRepository.GetPodcast(new PodcastsQuery
+            podcast = await podcastRepository.GetPodcast(new PodcastsQuery
             {
                 UserId = userId,
                 PodcastId = podcastId

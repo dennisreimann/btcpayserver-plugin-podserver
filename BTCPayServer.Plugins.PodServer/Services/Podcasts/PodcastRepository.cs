@@ -9,22 +9,13 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace BTCPayServer.Plugins.PodServer.Services.Podcasts;
 
-public class PodcastRepository
+public class PodcastRepository(
+    IFileService fileService,
+    PodServerPluginDbContextFactory dbContextFactory)
 {
-    private readonly IFileService _fileService;
-    private readonly PodServerPluginDbContextFactory _dbContextFactory;
-
-    public PodcastRepository(
-        IFileService fileService,
-        PodServerPluginDbContextFactory dbContextFactory)
-    {
-        _fileService = fileService;
-        _dbContextFactory = dbContextFactory;
-    }
-
     public async Task<IEnumerable<Podcast>> GetPodcasts(PodcastsQuery query)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         var podcasts = await FilterPodcasts(dbContext.Podcasts.AsQueryable(), query).ToListAsync();
 
         return podcasts.Select(podcast =>
@@ -44,7 +35,7 @@ public class PodcastRepository
 
     public async Task<Podcast> GetPodcast(PodcastsQuery query)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         var podcast = await FilterPodcasts(dbContext.Podcasts.AsQueryable(), query).FirstOrDefaultAsync();
         if (podcast == null)
             return null;
@@ -123,7 +114,7 @@ public class PodcastRepository
 
     public async Task<Podcast> AddOrUpdatePodcast(Podcast podcast)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
 
         EntityEntry entry;
         if (string.IsNullOrEmpty(podcast.PodcastId))
@@ -143,23 +134,23 @@ public class PodcastRepository
     {
         if (!string.IsNullOrEmpty(podcast.ImageFileId))
         {
-            await _fileService.RemoveFile(podcast.ImageFileId, null);
+            await fileService.RemoveFile(podcast.ImageFileId, null);
         }
 
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         dbContext.Podcasts.Remove(podcast);
         await dbContext.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<Episode>> GetEpisodes(EpisodesQuery query)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         return await FilterEpisodes(dbContext.Episodes.AsQueryable(), query).ToListAsync();
     }
 
     public async Task<Episode> GetEpisode(EpisodesQuery query)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         return await FilterEpisodes(dbContext.Episodes.AsQueryable(), query).FirstOrDefaultAsync();
     }
 
@@ -247,7 +238,7 @@ public class PodcastRepository
 
     public async Task<Episode> AddOrUpdateEpisode(Episode episode)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
 
         EntityEntry entry;
         if (string.IsNullOrEmpty(episode.EpisodeId))
@@ -267,31 +258,31 @@ public class PodcastRepository
     {
         if (!string.IsNullOrEmpty(episode.ImageFileId))
         {
-            await _fileService.RemoveFile(episode.ImageFileId, null);
+            await fileService.RemoveFile(episode.ImageFileId, null);
         }
 
         if (episode.Enclosures.Any())
         {
             foreach (var enclosure in episode.Enclosures)
             {
-                await _fileService.RemoveFile(enclosure.FileId, null);
+                await fileService.RemoveFile(enclosure.FileId, null);
             }
         }
 
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         dbContext.Episodes.Remove(episode);
         await dbContext.SaveChangesAsync();
     }
 
     private async Task<IEnumerable<Person>> GetPeople(PeopleQuery query)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         return await FilterPeople(dbContext.People.AsQueryable(), query).ToListAsync();
     }
 
     public async Task<Person> GetPerson(PeopleQuery query)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         return await FilterPeople(dbContext.People.AsQueryable(), query).FirstOrDefaultAsync();
     }
 
@@ -323,7 +314,7 @@ public class PodcastRepository
 
     public async Task<Person> AddOrUpdatePerson(Person person)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
 
         EntityEntry entry;
         if (string.IsNullOrEmpty(person.PersonId))
@@ -343,23 +334,23 @@ public class PodcastRepository
     {
         if (!string.IsNullOrEmpty(person.ImageFileId))
         {
-            await _fileService.RemoveFile(person.ImageFileId, null);
+            await fileService.RemoveFile(person.ImageFileId, null);
         }
 
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         dbContext.People.Remove(person);
         await dbContext.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<Season>> GetSeasons(SeasonsQuery query)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         return await FilterSeasons(dbContext.Seasons.AsQueryable(), query).ToListAsync();
     }
 
     public async Task<Season> GetSeason(SeasonsQuery query)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         return await FilterSeasons(dbContext.Seasons.AsQueryable(), query).FirstOrDefaultAsync();
     }
 
@@ -385,7 +376,7 @@ public class PodcastRepository
 
     public async Task<Season> AddOrUpdateSeason(Season season)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
 
         EntityEntry entry;
         if (string.IsNullOrEmpty(season.SeasonId))
@@ -403,20 +394,20 @@ public class PodcastRepository
 
     public async Task RemoveSeason(Season season)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         dbContext.Seasons.Remove(season);
         await dbContext.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<Contribution>> GetContributions(ContributionsQuery query)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         return await FilterContributions(dbContext.Contributions.AsQueryable(), query).ToListAsync();
     }
 
     public async Task<Contribution> GetContribution(ContributionsQuery query)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         return await FilterContributions(dbContext.Contributions.AsQueryable(), query).FirstOrDefaultAsync();
     }
 
@@ -452,7 +443,7 @@ public class PodcastRepository
 
     public async Task<Contribution> AddOrUpdateContribution(Contribution contribution)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
 
         EntityEntry entry;
         if (string.IsNullOrEmpty(contribution.ContributionId))
@@ -470,14 +461,14 @@ public class PodcastRepository
 
     public async Task RemoveContribution(Contribution contribution)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         dbContext.Contributions.Remove(contribution);
         await dbContext.SaveChangesAsync();
     }
 
     public async Task<Editor> AddOrUpdateEditor(string podcastId, string userId, EditorRole role)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         var editor = await dbContext.Editors.FirstOrDefaultAsync(e => e.PodcastId == podcastId && e.UserId == userId);
 
         if (editor == null)
@@ -502,14 +493,14 @@ public class PodcastRepository
 
     public async Task RemoveEditor(string podcastId, string userId)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         var editor = await dbContext.Editors.FirstAsync(a => a.PodcastId == podcastId && a.UserId == userId);
         await RemoveEditor(editor);
     }
 
     public async Task RemoveEditor(Editor editor)
     {
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         dbContext.Editors.Remove(editor);
         await dbContext.SaveChangesAsync();
     }

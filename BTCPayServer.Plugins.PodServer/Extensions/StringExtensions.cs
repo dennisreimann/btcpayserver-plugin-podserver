@@ -7,7 +7,7 @@ public static class StringExtensions
 {
     public static string Slugify(this string phrase)
     {
-        string str = phrase.ToLower();
+        var str = phrase.ToLower();
         // invalid chars
         str = Regex.Replace(str, @"[^a-z0-9\s-]", "");
         // convert multiple spaces into one space

@@ -10,39 +10,27 @@ using Microsoft.Extensions.Hosting;
 
 namespace BTCPayServer.Plugins.PodServer.Services;
 
-public class PodServerPluginMigrationRunner : IHostedService
+public class PodServerPluginMigrationRunner(
+    PodServerPluginDbContextFactory dbContextFactory,
+    ISettingsRepository settingsRepository,
+    PodcastRepository podcastRepository,
+    AppService appService)
+    : IHostedService
 {
-    private readonly PodServerPluginDbContextFactory _dbContextFactory;
-    private readonly ISettingsRepository _settingsRepository;
-    private readonly PodcastRepository _podcastRepository;
-    private readonly AppService _appService;
-
-    public PodServerPluginMigrationRunner(
-        PodServerPluginDbContextFactory dbContextFactory,
-        ISettingsRepository settingsRepository,
-        PodcastRepository podcastRepository,
-        AppService appService)
-    {
-        _dbContextFactory = dbContextFactory;
-        _settingsRepository = settingsRepository;
-        _podcastRepository = podcastRepository;
-        _appService = appService;
-    }
-
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         var settings =
-            await _settingsRepository.GetSettingAsync<PodServerPluginDataMigrationHistory>() ??
+            await settingsRepository.GetSettingAsync<PodServerPluginDataMigrationHistory>() ??
             new PodServerPluginDataMigrationHistory();
 
-        await using var ctx = _dbContextFactory.CreateContext();
-        await using var dbContext = _dbContextFactory.CreateContext();
+        await using var ctx = dbContextFactory.CreateContext();
+        await using var dbContext = dbContextFactory.CreateContext();
         await ctx.Database.MigrateAsync(cancellationToken);
 
         if (!settings.InitialAppUpdates)
         {
-            var podServerApps = await _appService.GetApps(PodServerApp.AppType);
-            var podcasts = (await _podcastRepository.GetPodcasts(new PodcastsQuery())).ToList();
+            var podServerApps = await appService.GetApps(PodServerApp.AppType);
+            var podcasts = (await podcastRepository.GetPodcasts(new PodcastsQuery())).ToList();
 
             // podcasts without apps
             var podserverSettings = podServerApps
@@ -57,7 +45,7 @@ public class PodServerPluginMigrationRunner : IHostedService
                     AppType = PodServerApp.AppType
                 };
                 appData.SetSettings(new PodServerSettings { PodcastId = podcast.PodcastId });
-                await _appService.UpdateOrCreateApp(appData);
+                await appService.UpdateOrCreateApp(appData);
             }
 
             // apps without podcasts
@@ -69,11 +57,11 @@ public class PodServerPluginMigrationRunner : IHostedService
                 });
             foreach (var app in appsWithoutPodcasts)
             {
-                await _appService.DeleteApp(app);
+                await appService.DeleteApp(app);
             }
 
             settings.InitialAppUpdates = true;
-            await _settingsRepository.UpdateSetting(settings);
+            await settingsRepository.UpdateSetting(settings);
         }
     }
 
