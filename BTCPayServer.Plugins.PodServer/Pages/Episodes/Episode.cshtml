@@ -12,14 +12,12 @@
     var player = new Player(Model.Episode, FileService);
 }
 
-<div class="sticky-header mb-l">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
-        <h2 class="mb-0">@ViewData["Title"]</h2>
-        @if (Model.Episode.IsPublished)
-        {
-            <a class="btn btn-secondary" asp-controller="Public" asp-action="Episode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@Model.Episode.Slug" id="ViewEpisode" target="_blank">Public Page</a>
-        }
-    </div>
+<div class="sticky-header">
+    <h2>@ViewData["Title"]</h2>
+    @if (Model.Episode.IsPublished)
+    {
+        <a class="btn btn-secondary" asp-controller="Public" asp-action="Episode" asp-route-podcastSlug="@Model.Podcast.Slug" asp-route-episodeSlug="@Model.Episode.Slug" id="ViewEpisode" target="_blank">Public Page</a>
+    }
     <partial name="_EpisodeSettingsNav" model="(Model.Episode.PodcastId, Model.Episode.EpisodeId)"/>
 </div>
 

@@ -12,13 +12,11 @@
         nameof(SelectListItem.Value), nameof(SelectListItem.Text), Model.Editor?.Role);
 }
 
-<div class="sticky-header mb-l">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
-        <h2 class="mb-0">
-            <a asp-page="./Podcast" asp-route-podcastId="@Model.Podcast.PodcastId" class="unobtrusive-link">@ViewData["Title"]</a>
-        </h2>
-        <button type="submit" class="btn btn-primary" id="Save">Save</button>
-    </div>
+<div class="sticky-header">
+    <h2>
+        <a asp-page="./Podcast" asp-route-podcastId="@Model.Podcast.PodcastId" class="unobtrusive-link">@ViewData["Title"]</a>
+    </h2>
+    <button type="submit" class="btn btn-primary" id="Save">Save</button>
     <partial name="_PodcastSettingsNav" model="Model.Podcast.PodcastId"/>
 </div>
 

@@ -7,7 +7,7 @@
 @inject IFileService FileService
 
 @{
-    ViewData.SetActivePage(PodServerNavPages.EditEpisode, Model.Episode.Title, Model.Episode.EpisodeId);
+    ViewData.SetActivePage(PodServerNavPages.EditEpisode, Model.Episode.Title, Model.Episode.PodcastId);
 }
 
 @section PodServerHead {
@@ -23,13 +23,9 @@
 }
 
 <form method="post" enctype="multipart/form-data">
-    <div class="sticky-header mb-l">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
-            <h2 class="mb-0">@ViewData["Title"]</h2>
-            <div class="d-flex gap-3">
-                <button type="submit" class="btn btn-primary" id="Save">Save</button>
-            </div>
-        </div>
+    <div class="sticky-header">
+        <h2>@ViewData["Title"]</h2>
+        <button type="submit" class="btn btn-primary" id="Save">Save</button>
         <partial name="_EpisodeSettingsNav" model="(Model.Episode.PodcastId, Model.Episode.EpisodeId)"/>
     </div>
 
@@ -59,7 +55,7 @@
                            class="form-control flatdtpicker"
                            placeholder="No publish date has been set" />
                     <button class="btn btn-secondary input-group-clear" type="button" title="Clear">
-                        <span class="fa fa-times"></span>
+                        @await Component.InvokeAsync("Icon", new { symbol = "close" })
                     </button>
                 </div>
                 <span asp-validation-for="Episode.PublishedAt" class="text-danger"></span>

@@ -2,11 +2,11 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model (string PodcastId, string EpisodeId)
 
-<nav id="SectionNav">
+<nav id="SectionNav" class="w-100 mb-0">
     <div class="nav">
-        <a id="SectionNav-@PodServerNavPages.Episode.ToString()" class="nav-link @ViewData.IsActivePage(PodServerNavPages.Episode)" asp-page="/Episodes/Episode" asp-route-podcastId="@Model.PodcastId" asp-route-episodeId="@Model.EpisodeId">General</a>
-        <a id="SectionNav-@PodServerNavPages.EditEpisode.ToString()" class="nav-link @ViewData.IsActivePage(PodServerNavPages.EditEpisode)" asp-page="/Episodes/Edit" asp-route-podcastId="@Model.PodcastId" asp-route-episodeId="@Model.EpisodeId" permission="@PodServerPolicies.CanManageEpisodes">Settings</a>
-        <a id="SectionNav-@PodServerNavPages.Contributions.ToString()" class="nav-link @ViewData.IsActivePage(PodServerNavPages.Contributions)" asp-page="/Contributions/Index" asp-route-podcastId="@Model.PodcastId" asp-route-episodeId="@Model.EpisodeId">Contributions</a>
+        <a id="SectionNav-@PodServerNavPages.Episode.ToString()" class="nav-link @ViewData.ActivePageClass(PodServerNavPages.Episode)" asp-page="/Episodes/Episode" asp-route-podcastId="@Model.PodcastId" asp-route-episodeId="@Model.EpisodeId">General</a>
+        <a id="SectionNav-@PodServerNavPages.EditEpisode.ToString()" class="nav-link @ViewData.ActivePageClass(PodServerNavPages.EditEpisode)" asp-page="/Episodes/Edit" asp-route-podcastId="@Model.PodcastId" asp-route-episodeId="@Model.EpisodeId" permission="@PodServerPolicies.CanManageEpisodes">Settings</a>
+        <a id="SectionNav-@PodServerNavPages.Contributions.ToString()" class="nav-link @ViewData.ActivePageClass(PodServerNavPages.Contributions)" asp-page="/Contributions/Index" asp-route-podcastId="@Model.PodcastId" asp-route-episodeId="@Model.EpisodeId">Contributions</a>
     </div>
 </nav>
 

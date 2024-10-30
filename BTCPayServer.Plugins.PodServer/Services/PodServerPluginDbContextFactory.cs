@@ -1,9 +1,11 @@
+using System;
 using BTCPayServer.Abstractions.Contracts;
 using BTCPayServer.Abstractions.Models;
 using BTCPayServer.Plugins.PodServer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Options;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
 namespace BTCPayServer.Plugins.PodServer.Services;
 
@@ -25,7 +27,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<PodServerP
 public class PodServerPluginDbContextFactory(IOptions<DatabaseOptions> options)
     : BaseDbContextFactory<PodServerPluginDbContext>(options, "BTCPayServer.Plugins.PodServer")
 {
-    public override PodServerPluginDbContext CreateContext()
+    public override PodServerPluginDbContext CreateContext(Action<NpgsqlDbContextOptionsBuilder> npgsqlOptionsAction = null)
     {
         var builder = new DbContextOptionsBuilder<PodServerPluginDbContext>();
         ConfigureBuilder(builder);

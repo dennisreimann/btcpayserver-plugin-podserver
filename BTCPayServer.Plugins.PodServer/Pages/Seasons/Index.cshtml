@@ -6,11 +6,9 @@
     ViewData.SetActivePage(PodServerNavPages.Seasons, Model.Podcast.Title, Model.Podcast.PodcastId);
 }
 
-<div class="sticky-header mb-l">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
-        <h2 class="mb-0">@ViewData["Title"]</h2>
-        <a asp-page="./Edit" asp-route-podcastId="@Model.Podcast.PodcastId" class="btn btn-primary mt-3 mt-sm-0" role="button" id="AddSeason" permission="@PodServerPolicies.CanManageEpisodes">Add a season</a>
-    </div>
+<div class="sticky-header">
+    <h2>@ViewData["Title"]</h2>
+    <a asp-page="./Edit" asp-route-podcastId="@Model.Podcast.PodcastId" class="btn btn-primary mt-3 mt-sm-0" role="button" id="AddSeason" permission="@PodServerPolicies.CanManageEpisodes">Add a season</a>
     <partial name="_PodcastSettingsNav" model="Model.Podcast.PodcastId"/>
 </div>
 

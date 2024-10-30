@@ -6,7 +6,7 @@
 
 @{
     Layout = "_LayoutSimple";
-    ViewData.SetActivePage(PodServerNavPages.Public, $"{Model.Episode.Title} - {Model.Podcast.Title}", Model.Episode.EpisodeId);
+    ViewData.SetActivePage(PodServerNavPages.Public, $"{Model.Episode.Title} - {Model.Podcast.Title}", Model.Episode.PodcastId);
 
     var rootUri = Context.Request.GetAbsoluteRootUri();
     var enclosure = Model.Episode.MainEnclosure;

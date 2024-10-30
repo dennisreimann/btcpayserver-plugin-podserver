@@ -16,14 +16,14 @@ namespace BTCPayServer.Plugins.PodServer;
 public class PodServerPlugin : BaseBTCPayServerPlugin
 {
     public override IBTCPayServerPlugin.PluginDependency[] Dependencies { get; } =
-    {
-        new () { Identifier = nameof(BTCPayServer), Condition = ">=1.12.1" }
-    };
+    [
+        new () { Identifier = nameof(BTCPayServer), Condition = ">=2.0.0" }
+    ];
 
     public override void Execute(IServiceCollection services)
     {
         services.AddSingleton<AppBaseType, PodServerApp>();
-        services.AddSingleton<IUIExtension>(new UIExtension("PodServerNavExtension", "header-nav"));
+        services.AddUIExtension("header-nav", "PodServerNavExtension");
         services.AddSingleton<PodServerPluginDbContextFactory>();
         services.AddDbContext<PodServerPluginDbContext>((provider, o) =>
         {

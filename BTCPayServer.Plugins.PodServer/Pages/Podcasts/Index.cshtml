@@ -8,8 +8,8 @@
     ViewData.SetActivePage(PodServerNavPages.Podcasts, "PodServer");
 }
 
-<div class="sticky-header d-flex flex-wrap align-items-center justify-content-between gap-3">
-    <h2 class="my-1">@ViewData["Title"]</h2>
+<div class="sticky-header">
+    <h2>@ViewData["Title"]</h2>
     @if (Model.IsReady)
     {
         <a asp-area="" asp-controller="UIApps" asp-action="CreateApp" asp-route-storeId="@store.Id" asp-route-appType="@PodServerApp.AppType" class="btn btn-primary" role="button" id="CreatePodcast">

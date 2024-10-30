@@ -5,10 +5,8 @@
     ViewData.SetActivePage(PodServerNavPages.People, Model.Person.Name, Model.Person.PodcastId);
 }
 
-<div class="sticky-header mb-l">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-        <h2 class="mb-0">@ViewData["Title"]</h2>
-    </div>
+<div class="sticky-header">
+    <h2 class="mt-1">@ViewData["Title"]</h2>
     <partial name="_PodcastSettingsNav" model="Model.Person.PodcastId" />
 </div>
 

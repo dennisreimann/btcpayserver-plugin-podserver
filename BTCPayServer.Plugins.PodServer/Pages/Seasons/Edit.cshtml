@@ -8,15 +8,11 @@
 }
 
 <form method="post" enctype="multipart/form-data">
-    <div class="sticky-header mb-l">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
-            <h2 class="mb-0">
-                <a asp-page="/Podcasts/Podcast" asp-route-podcastId="@Model.Season.PodcastId" class="unobtrusive-link">@ViewData["Title"]</a>
-            </h2>
-            <div class="d-flex gap-3 mt-3 mt-sm-0">
-                <button type="submit" class="btn btn-primary" id="Save">@(isCreate ? "Create" : "Save")</button>
-            </div>
-        </div>
+    <div class="sticky-header">
+        <h2>
+            <a asp-page="/Podcasts/Podcast" asp-route-podcastId="@Model.Season.PodcastId" class="unobtrusive-link">@ViewData["Title"]</a>
+        </h2>
+        <button type="submit" class="btn btn-primary" id="Save">@(isCreate ? "Create" : "Save")</button>
         <partial name="_PodcastSettingsNav" model="Model.Season.PodcastId" />
     </div>
 

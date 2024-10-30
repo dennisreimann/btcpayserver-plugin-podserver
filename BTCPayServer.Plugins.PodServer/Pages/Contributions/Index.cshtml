@@ -3,23 +3,16 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model BTCPayServer.Plugins.PodServer.Pages.Contributions.IndexModel
 
-@if (Model.Episode == null)
-{
+@{
     ViewData.SetActivePage(PodServerNavPages.Contributions, Model.Podcast.Title, Model.Podcast.PodcastId);
 }
-else
-{
-    ViewData.SetActivePage(PodServerNavPages.Contributions, Model.Episode.Title, Model.Episode.EpisodeId);
-}
 
-<div class="sticky-header mb-l">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4 @(Model.HasPeople ? "" : "mt-1")">
-        <h2 class="mb-0">@ViewData["Title"]</h2>
-        @if (Model.HasPeople)
-        {
-            <a asp-page="./Edit" asp-route-podcastId="@Model.Podcast.PodcastId" asp-route-episodeId="@Model.Episode?.EpisodeId" class="btn btn-primary mt-3 mt-sm-0" role="button" id="AddContribution" permission="@PodServerPolicies.CanManageEpisodes">Add a contribution</a>
-        }
-    </div>
+<div class="sticky-header">
+    <h2 class="mt-1">@ViewData["Title"]</h2>
+    @if (Model.HasPeople)
+    {
+        <a asp-page="./Edit" asp-route-podcastId="@Model.Podcast.PodcastId" asp-route-episodeId="@Model.Episode?.EpisodeId" class="btn btn-primary mt-3 mt-sm-0" role="button" id="AddContribution" permission="@PodServerPolicies.CanManageEpisodes">Add a contribution</a>
+    }
     @if (Model.Episode == null)
     {
         <partial name="_PodcastSettingsNav" model="Model.Podcast.PodcastId"/>

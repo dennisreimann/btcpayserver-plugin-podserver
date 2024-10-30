@@ -8,26 +8,15 @@
     var person = isCreate ? null : Model.Podcast.People.FirstOrDefault(p => p.PersonId == Model.Contribution.PersonId);
     var peopleItems = Model.Podcast.People.Select(p => new SelectListItem { Value = p.PersonId, Text = p.Name });
     var title = isCreate ? "Add a new contribution for" : "Edit contribution for";
-    if (Model.Episode == null)
-    {
-        ViewData.SetActivePage(PodServerNavPages.Contributions, $"{title} {Model.Podcast.Title}", Model.Podcast.PodcastId);
-    }
-    else
-    {
-        ViewData.SetActivePage(PodServerNavPages.Contributions, $"{title} {Model.Episode.Title}", Model.Episode.EpisodeId);
-    }
+    ViewData.SetActivePage(PodServerNavPages.Contributions, $"{title} {Model.Episode.Title}", Model.Episode.PodcastId);
 }
 
 <form method="post" enctype="multipart/form-data">
-    <div class="sticky-header mb-l">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-2 mb-lg-4">
-            <h2 class="mb-0">
-                <a asp-page="/Podcasts/Podcast" asp-route-podcastId="@Model.Contribution.PodcastId" class="unobtrusive-link">@ViewData["Title"]</a>
-            </h2>
-            <div class="d-flex gap-3 mt-3 mt-sm-0">
-                <button type="submit" class="btn btn-primary" id="Save">@(isCreate ? "Create" : "Save")</button>
-            </div>
-        </div>
+    <div class="sticky-header">
+        <h2>
+            <a asp-page="/Podcasts/Podcast" asp-route-podcastId="@Model.Contribution.PodcastId" class="unobtrusive-link">@ViewData["Title"]</a>
+        </h2>
+        <button type="submit" class="btn btn-primary" id="Save">@(isCreate ? "Create" : "Save")</button>
         @if (string.IsNullOrEmpty(Model.Contribution.EpisodeId))
         {
             <partial name="_PodcastSettingsNav" model="Model.Podcast.PodcastId"/>
