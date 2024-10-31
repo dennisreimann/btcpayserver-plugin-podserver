@@ -282,7 +282,9 @@ public class FeedController : PublicBaseController
         await xml.WriteStartElementAsync("podcast", "valueRecipient", null);
         xml.WriteAttributeString("name", "PodServer");
         xml.WriteAttributeString("type", ValueRecipientType.Node.ToString());
-        xml.WriteAttributeString("address", "0231f73aef9bbdbf69e840640255946264026b56e17701f2d410b08b8b6e5d637a");
+        xml.WriteAttributeString("address", "030a58b8653d32b99200a2334cfe913e51dc7d155aa0116c176657a4f1722677a3");
+        xml.WriteAttributeString("customKey", "696969");
+        xml.WriteAttributeString("customValue", "1M1LbWGzwPE2qViFPG34");
         xml.WriteAttributeString("split", "1");
         xml.WriteAttributeString("fee", "true");
         await xml.WriteEndElementAsync();
